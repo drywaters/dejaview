@@ -44,7 +44,7 @@ templ SearchResultCard(result tmdb.SearchResult) {
 			</p>
 			if result.Overview != "" {
 				<p class="text-sm text-cream-ticket opacity-50 line-clamp-4 mt-1">
-					{ truncate(result.Overview, 350) }
+					{ result.Overview }
 				</p>
 			}
 		</div>
