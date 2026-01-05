@@ -43,8 +43,8 @@ templ SearchResultCard(result tmdb.SearchResult) {
 				{ extractYear(result.ReleaseDate) }
 			</p>
 			if result.Overview != "" {
-				<p class="text-sm text-cream-ticket opacity-50 line-clamp-2 mt-1">
-					{ truncate(result.Overview, 150) }
+				<p class="text-sm text-cream-ticket opacity-50 line-clamp-4 mt-1">
+					{ truncate(result.Overview, 350) }
 				</p>
 			}
 		</div>
