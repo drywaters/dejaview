@@ -23,7 +23,7 @@ templ RatingInput(entryID uuid.UUID, person *model.Person, currentScore *float64
 	<div class="flex items-center gap-2">
 		<form
 			hx-post="/api/ratings"
-			hx-trigger="blur changed from:input"
+			hx-trigger="change from:input"
 			hx-target="#ratings-section"
 			hx-swap="outerHTML"
 			hx-validate="false"
