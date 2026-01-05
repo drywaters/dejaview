@@ -1,0 +1,35 @@
+# Repository Guidelines
+
+## Project Structure & Module Organization
+- `cmd/seenema/main.go` is the entry point.
+- `internal/` holds app code: handlers, middleware, repositories, models, server wiring, and config.
+- `internal/ui/` contains Templ templates (`components/`, `partials/`, `pages/`, `layout/`).
+- `tailwind/` is the source CSS; `static/` is the compiled assets output (e.g., `static/styles.css`).
+- `migrations/` stores ordered SQL migrations (e.g., `001_create_movies.sql`).
+
+## Build, Test, and Development Commands
+- `make run`: generate Templ + Tailwind, then run the app (`go run ./cmd/seenema`).
+- `make build`: generate assets and build the production binary (`bin/seenema`).
+- `make test`: run Go tests (`go test -v ./...`).
+- `make templ` / `make templ-watch`: generate Templ Go code (watch mode available).
+- `make tail-prod` / `make tail-watch`: build Tailwind CSS (watch requires Tailwind CLI).
+- `make migrate`, `make migrate-down`, `make migrate-status`: manage database migrations with Goose.
+
+## Coding Style & Naming Conventions
+- Go code follows standard `gofmt` formatting and idiomatic package structure under `internal/`.
+- Templ files use `.templ` and are grouped by purpose (`components`, `partials`, `pages`).
+- Migration files use zero-padded numeric prefixes and snake_case names.
+- Local configuration lives in `local.mk` (see `local.mk.example`) using `export KEY=VALUE`.
+
+## Testing Guidelines
+- Use Go’s built-in testing via `go test -v ./...`.
+- Name tests with `_test.go` files and `TestXxx` functions.
+
+## Commit & Pull Request Guidelines
+- Current git history is minimal, so no enforced commit format yet. Use short, imperative subjects (e.g., "Add rating validation").
+- PRs should include a clear description, testing notes, and screenshots for UI changes.
+
+## Security & Configuration Tips
+- Keep secrets in `local.mk` (gitignored). Required values include `DATABASE_URL`, `API_TOKEN`, and `TMDB_API_KEY`.
+- Avoid inline comments after `export` lines in `local.mk`; `make` keeps the trailing space, which can break token matching.
+- For local HTTP dev, set `SECURE_COOKIES=false`; keep it true for production HTTPS.

@@ -1,0 +1,88 @@
+package handler
+
+import (
+	"context"
+	"log/slog"
+	"net/http"
+
+	"github.com/drywaters/seenema/internal/model"
+	"github.com/drywaters/seenema/internal/repository"
+	"github.com/drywaters/seenema/internal/ui/pages"
+)
+
+// DashboardHandler handles the main dashboard
+type DashboardHandler struct {
+	entryRepo  *repository.EntryRepository
+	personRepo *repository.PersonRepository
+}
+
+// NewDashboardHandler creates a new DashboardHandler
+func NewDashboardHandler(entryRepo *repository.EntryRepository, personRepo *repository.PersonRepository) *DashboardHandler {
+	return &DashboardHandler{
+		entryRepo:  entryRepo,
+		personRepo: personRepo,
+	}
+}
+
+// DashboardPage renders the main dashboard with all groups
+func (h *DashboardHandler) DashboardPage(w http.ResponseWriter, r *http.Request) {
+	groupDataList, persons, currentGroup, err := h.getDashboardData(r.Context())
+	if err != nil {
+		slog.Error("failed to get dashboard data", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	pages.DashboardPage(groupDataList, persons, currentGroup).Render(r.Context(), w)
+}
+
+// DashboardContent renders just the inner content for HTMX partial updates
+func (h *DashboardHandler) DashboardContent(w http.ResponseWriter, r *http.Request) {
+	groupDataList, persons, currentGroup, err := h.getDashboardData(r.Context())
+	if err != nil {
+		slog.Error("failed to get dashboard data", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	pages.DashboardContent(groupDataList, persons, currentGroup).Render(r.Context(), w)
+}
+
+// getDashboardData retrieves all data needed for the dashboard
+func (h *DashboardHandler) getDashboardData(ctx context.Context) ([]pages.GroupData, []*model.Person, int, error) {
+	// Get all group numbers
+	groups, err := h.entryRepo.ListGroups(ctx)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+
+	// Get persons for rating display
+	persons, err := h.personRepo.GetAll(ctx)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+
+	// Get current group for adding movies
+	currentGroup, err := h.entryRepo.GetCurrentGroup(ctx)
+	if err != nil {
+		slog.Error("failed to get current group", "error", err)
+		currentGroup = 1
+	}
+
+	// Build group data with entries
+	groupDataList := make([]pages.GroupData, 0, len(groups))
+	for _, groupNum := range groups {
+		entries, err := h.entryRepo.ListByGroup(ctx, groupNum)
+		if err != nil {
+			slog.Error("failed to list entries for group", "group", groupNum, "error", err)
+			continue
+		}
+		groupDataList = append(groupDataList, pages.GroupData{
+			Number:  groupNum,
+			Entries: entries,
+		})
+	}
+
+	return groupDataList, persons, currentGroup, nil
+}
+

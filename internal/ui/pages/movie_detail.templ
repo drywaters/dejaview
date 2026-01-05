@@ -1,0 +1,183 @@
+package pages
+
+import (
+	"time"
+
+	"github.com/drywaters/seenema/internal/model"
+	"github.com/drywaters/seenema/internal/ui/components"
+	"github.com/drywaters/seenema/internal/ui/layout"
+	"github.com/drywaters/seenema/internal/ui"
+	"github.com/google/uuid"
+)
+
+templ MovieDetailPage(entry *model.Entry, persons []*model.Person) {
+	@layout.Base(entry.Movie.Title) {
+		@layout.Header()
+		
+		<main class="max-w-6xl mx-auto px-4 py-8">
+			<!-- Back link -->
+			<a href="/" class="inline-flex items-center gap-2 text-gold hover:text-gold-bright mb-6 transition-colors">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+				</svg>
+				<span class="font-display uppercase tracking-wider text-sm">Back to Collection</span>
+			</a>
+
+			<div class="grid lg:grid-cols-3 gap-8">
+				<!-- Poster Column -->
+				<div class="lg:col-span-1">
+					<div class="detail-poster overflow-hidden">
+						@components.Poster(entry.Movie, "w-full")
+					</div>
+					
+					<!-- Group & Actions -->
+					<div class="card mt-4 p-4 space-y-4">
+						<div class="flex items-center justify-between">
+							<span class="font-display text-gold text-sm uppercase tracking-wider">Group</span>
+							<span class="text-cream-ticket font-bold">{ ui.IntToStr(entry.GroupNumber) }</span>
+						</div>
+						
+						<!-- Watched Status -->
+						<div id="watched-status">
+							@WatchedStatusSection(entry)
+						</div>
+						
+						<!-- Delete Button -->
+						<button
+							hx-delete={ "/api/entries/" + entry.ID.String() }
+							hx-confirm="Are you sure you want to remove this movie from your collection?"
+							hx-swap="none"
+							class="btn-secondary w-full text-red-400 border-red-400 hover:bg-red-400 hover:text-theater-black"
+						>
+							Remove from Collection
+						</button>
+					</div>
+				</div>
+
+				<!-- Details Column -->
+				<div class="lg:col-span-2 space-y-6">
+					<!-- Title & Meta -->
+					<div>
+						<h1 class="detail-title mb-2">{ entry.Movie.Title }</h1>
+						<div class="detail-meta flex flex-wrap items-center gap-4">
+							if entry.Movie.ReleaseYear != nil {
+								<span>{ ui.IntToStr(*entry.Movie.ReleaseYear) }</span>
+							}
+							if entry.Movie.RuntimeMinutes != nil {
+								<span>•</span>
+								<span>{ entry.Movie.FormattedRuntime() }</span>
+							}
+						</div>
+					</div>
+
+					<!-- Synopsis -->
+					if entry.Movie.Synopsis != nil && *entry.Movie.Synopsis != "" {
+						<div class="card p-6">
+							<h3 class="font-display text-gold text-lg uppercase tracking-wider mb-3">Synopsis</h3>
+							<p class="synopsis-text">{ *entry.Movie.Synopsis }</p>
+						</div>
+					}
+
+					<!-- Ratings Section -->
+					<div class="card p-6" id="ratings-section">
+						<div class="flex items-center justify-between mb-6">
+							<h3 class="font-display text-gold text-lg uppercase tracking-wider">Family Ratings</h3>
+							@components.AverageRating(entry.AverageRating(), entry.RatingCount())
+						</div>
+
+						<div class="divider mb-6"></div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							for _, person := range persons {
+								@PersonRatingRow(entry, person)
+							}
+						</div>
+					</div>
+
+					<!-- Notes Section -->
+					<div class="card p-6">
+						<h3 class="font-display text-gold text-lg uppercase tracking-wider mb-3">Notes</h3>
+						<form
+							hx-put={ "/api/entries/" + entry.ID.String() }
+							hx-trigger="submit"
+							hx-swap="none"
+						>
+							<textarea
+								name="notes"
+								rows="3"
+								placeholder="Add notes about the movie..."
+								class="input-field w-full resize-none"
+							>{ derefString(entry.Notes) }</textarea>
+							<button type="submit" class="btn-primary mt-2">Save Notes</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</main>
+	}
+}
+
+templ WatchedStatusSection(entry *model.Entry) {
+	<div class="space-y-2">
+		<div class="flex items-center justify-between">
+			<span class="font-display text-gold text-sm uppercase tracking-wider">Watched</span>
+			if entry.IsWatched() {
+				<span class="text-green-400 font-medium">
+					{ formatDate(entry.WatchedAt) }
+				</span>
+			} else {
+				<span class="text-cream-ticket opacity-50">Not yet</span>
+			}
+		</div>
+		
+		if entry.IsWatched() {
+			<button
+				hx-delete={ "/api/entries/" + entry.ID.String() + "/watched" }
+				hx-target="#watched-status"
+				hx-swap="innerHTML"
+				class="btn-secondary w-full"
+			>
+				Clear Watched
+			</button>
+		} else {
+			<button
+				hx-post={ "/api/entries/" + entry.ID.String() + "/watched" }
+				hx-target="#watched-status"
+				hx-swap="innerHTML"
+				class="btn-primary w-full"
+			>
+				Mark as Watched
+			</button>
+		}
+	</div>
+}
+
+templ PersonRatingRow(entry *model.Entry, person *model.Person) {
+	<div class="flex items-center gap-3 p-3 rounded-lg bg-theater-black/50">
+		<span class="font-display text-cream-ticket">{ person.Name }</span>
+		@components.RatingInput(entry.ID, person, getRatingScore(entry, person.ID))
+	</div>
+}
+
+func derefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func formatDate(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return t.Format("Jan 2, 2006")
+}
+
+func getRatingScore(entry *model.Entry, personID uuid.UUID) *float64 {
+	for _, r := range entry.Ratings {
+		if r.PersonID == personID {
+			return &r.Score
+		}
+	}
+	return nil
+}

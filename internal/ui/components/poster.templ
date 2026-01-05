@@ -1,0 +1,62 @@
+package components
+
+import (
+	"github.com/drywaters/seenema/internal/model"
+	"github.com/drywaters/seenema/internal/ui"
+)
+
+// Poster renders a movie poster with fallback
+templ Poster(movie *model.Movie, size string) {
+	if movie.PosterURL != nil && *movie.PosterURL != "" {
+		<img
+			src={ *movie.PosterURL }
+			alt={ movie.Title }
+			class={ "poster-image", size }
+			loading="lazy"
+		/>
+	} else {
+		<div class={ "poster-placeholder", size }>
+			<svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
+				<path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+			</svg>
+		</div>
+	}
+}
+
+// PosterCard renders a clickable movie poster card
+templ PosterCard(entry *model.Entry, showRatings bool) {
+	<a href={ templ.SafeURL("/movies/" + entry.ID.String()) } class="poster-card block">
+		if entry.IsWatched() {
+			<div class="watched-badge flex items-center gap-1">
+				<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+					<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+				</svg>
+				Watched
+			</div>
+		}
+		
+		@Poster(entry.Movie, "w-full")
+		
+		<div class="poster-overlay">
+			<h3 class="font-display font-semibold text-gold truncate">{ entry.Movie.Title }</h3>
+			if entry.Movie.ReleaseYear != nil {
+				<p class="text-sm text-cream-ticket opacity-70">{ ui.IntToStr(*entry.Movie.ReleaseYear) }</p>
+			}
+			
+			if showRatings && len(entry.Ratings) > 0 {
+				<div class="flex items-center gap-1 mt-2">
+					for _, rating := range entry.Ratings {
+						<span class={ "rating-badge text-xs", rating.RatingColor() }>
+							{ rating.Person.Initial }
+						</span>
+					}
+					if avg := entry.AverageRating(); avg != nil {
+						<span class="ml-auto text-gold font-display font-bold text-sm">
+							{ ui.FormatFloat(*avg) }
+						</span>
+					}
+				</div>
+			}
+		</div>
+	</a>
+}

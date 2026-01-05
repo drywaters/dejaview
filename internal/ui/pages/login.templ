@@ -1,0 +1,59 @@
+package pages
+
+import "github.com/drywaters/seenema/internal/ui/layout"
+
+templ LoginPage(errorType string, redirectURL string) {
+	@layout.Base("Login") {
+		<div class="min-h-screen flex items-center justify-center px-4">
+			<div class="login-card w-full max-w-md p-8">
+				<div class="text-center mb-8">
+					<div class="text-6xl mb-4">🎬</div>
+					<h1 class="text-marquee text-3xl mb-2">Seenema</h1>
+					<p class="text-cream-ticket opacity-70">Family Movie Night Tracker</p>
+				</div>
+
+				if errorType != "" {
+					<div class="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg mb-6">
+						if errorType == "missing_key" {
+							Please enter your access token.
+						} else if errorType == "invalid_key" {
+							Invalid access token. Please try again.
+						} else {
+							An error occurred. Please try again.
+						}
+					</div>
+				}
+
+				<form action="/login" method="POST" class="space-y-6">
+					<input type="hidden" name="redirect" value={ redirectURL }/>
+					
+					<div>
+						<label for="api_key" class="block font-display text-gold text-sm uppercase tracking-wider mb-2">
+							Access Token
+						</label>
+						<input
+							type="password"
+							id="api_key"
+							name="api_key"
+							required
+							autocomplete="current-password"
+							class="input-field w-full"
+							placeholder="Enter your secret token"
+						/>
+					</div>
+
+					<button type="submit" class="btn-primary w-full">
+						Enter Theater
+					</button>
+				</form>
+
+				<div class="divider my-8"></div>
+
+				<p class="text-center text-sm text-cream-ticket opacity-50">
+					The Waters Family Movie Collection
+				</p>
+			</div>
+		</div>
+	}
+}
+

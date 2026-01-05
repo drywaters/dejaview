@@ -1,0 +1,50 @@
+package partials
+
+import (
+	"time"
+	"github.com/drywaters/seenema/internal/model"
+)
+
+// WatchedStatus renders the watched status section for HTMX updates
+templ WatchedStatus(entry *model.Entry, persons []*model.Person) {
+	<div class="space-y-2">
+		<div class="flex items-center justify-between">
+			<span class="font-display text-gold text-sm uppercase tracking-wider">Watched</span>
+			if entry.IsWatched() {
+				<span class="text-green-400 font-medium">
+					{ formatDate(entry.WatchedAt) }
+				</span>
+			} else {
+				<span class="text-cream-ticket opacity-50">Not yet</span>
+			}
+		</div>
+		
+		if entry.IsWatched() {
+			<button
+				hx-delete={ "/api/entries/" + entry.ID.String() + "/watched" }
+				hx-target="#watched-status"
+				hx-swap="innerHTML"
+				class="btn-secondary w-full"
+			>
+				Clear Watched
+			</button>
+		} else {
+			<button
+				hx-post={ "/api/entries/" + entry.ID.String() + "/watched" }
+				hx-target="#watched-status"
+				hx-swap="innerHTML"
+				class="btn-primary w-full"
+			>
+				Mark as Watched
+			</button>
+		}
+	</div>
+}
+
+func formatDate(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return t.Format("Jan 2, 2006")
+}
+

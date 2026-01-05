@@ -1,0 +1,86 @@
+package partials
+
+import (
+	"github.com/drywaters/seenema/internal/tmdb"
+	"github.com/drywaters/seenema/internal/ui"
+)
+
+// SearchResults renders TMDB search results
+templ SearchResults(results []tmdb.SearchResult) {
+	if results == nil || len(results) == 0 {
+		<div class="text-center py-8 text-cream-ticket opacity-50">
+			<p>No results found. Try a different search term.</p>
+		</div>
+	} else {
+		<div class="space-y-3 max-h-96 overflow-y-auto">
+			for _, result := range results {
+				@SearchResultCard(result)
+			}
+		</div>
+	}
+}
+
+templ SearchResultCard(result tmdb.SearchResult) {
+	<div class="search-result">
+		if result.PosterPath != nil && *result.PosterPath != "" {
+			<img
+				src={ "https://image.tmdb.org/t/p/w92" + *result.PosterPath }
+				alt={ result.Title }
+				class="search-poster"
+				loading="lazy"
+			/>
+		} else {
+			<div class="search-poster bg-theater-black flex items-center justify-center">
+				<svg class="w-8 h-8 text-gold opacity-30" fill="currentColor" viewBox="0 0 24 24">
+					<path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+				</svg>
+			</div>
+		}
+		
+		<div class="flex-1 min-w-0">
+			<h4 class="font-display text-gold font-semibold truncate">{ result.Title }</h4>
+			<p class="text-sm text-cream-ticket opacity-70">
+				{ extractYear(result.ReleaseDate) }
+			</p>
+			if result.Overview != "" {
+				<p class="text-sm text-cream-ticket opacity-50 line-clamp-2 mt-1">
+					{ truncate(result.Overview, 150) }
+				</p>
+			}
+		</div>
+		
+		<form hx-post="/api/tmdb/add" hx-swap="none" class="flex-shrink-0">
+			<input type="hidden" name="tmdb_id" value={ ui.IntToStr(result.ID) }/>
+			<input
+				type="hidden"
+				name="group_number"
+				value=""
+				hx-vals="js:{group_number: document.getElementById('add-group-select').value}"
+			/>
+			<button type="submit" class="btn-primary text-sm whitespace-nowrap">
+				Add
+			</button>
+		</form>
+	</div>
+}
+
+func extractYear(releaseDate string) string {
+	if len(releaseDate) >= 4 {
+		return releaseDate[:4]
+	}
+	return "Unknown"
+}
+
+func truncate(s string, maxLen int) string {
+	if maxLen <= 0 {
+		if s == "" {
+			return ""
+		}
+		return "..."
+	}
+	runes := []rune(s)
+	if len(runes) <= maxLen {
+		return s
+	}
+	return string(runes[:maxLen]) + "..."
+}

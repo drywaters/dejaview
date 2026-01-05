@@ -1,0 +1,507 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@source "../internal/ui";
+
+/* =============================================================================
+   SEENEMA - MODERN CINEPHILE AESTHETIC
+   A refined, contemporary dark interface with tasteful vintage cinema touches.
+   Clean typography, subtle accents, minimal ornamentation.
+   ============================================================================= */
+
+@layer base {
+	:root {
+		/* Primary Palette - Refined Cinema */
+		--color-theater-black: #09090b;
+		--color-surface: #18181b;
+		--color-surface-raised: #27272a;
+		--color-curtain-red: #991b1b;
+		--color-curtain-dark: #7f1d1d;
+		--color-gold: #d97706;
+		--color-gold-muted: #b45309;
+		--color-cream: #fafaf9;
+		--color-cream-muted: #a8a29e;
+
+		/* Status Colors */
+		--color-success: #22c55e;
+		--color-error: #ef4444;
+		--color-warning: #f59e0b;
+
+		/* Rating Colors */
+		--color-rating-low: #ef4444;
+		--color-rating-mid: #f59e0b;
+		--color-rating-high: #22c55e;
+
+		/* Typography */
+		--font-display: 'Outfit', system-ui, sans-serif;
+		--font-body: 'DM Sans', system-ui, sans-serif;
+		--font-mono: 'JetBrains Mono', monospace;
+
+		/* Shadows */
+		--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+		--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+		--shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+		--shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.4);
+	}
+
+	* {
+		font-family: var(--font-body);
+	}
+
+	body {
+		background-color: var(--color-theater-black);
+		color: var(--color-cream);
+		min-height: 100vh;
+	}
+
+	/* Subtle scrollbar */
+	::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: var(--color-theater-black);
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: var(--color-surface-raised);
+		border-radius: 4px;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: var(--color-gold-muted);
+	}
+}
+
+/* =============================================================================
+   COMPONENTS
+   ============================================================================= */
+
+@layer components {
+	/* Typography */
+	.font-display {
+		font-family: var(--font-display);
+	}
+
+	.font-mono {
+		font-family: var(--font-mono);
+	}
+
+	.text-gold {
+		color: var(--color-gold);
+	}
+
+	.text-marquee {
+		font-family: var(--font-display);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--color-cream);
+		font-weight: 600;
+	}
+
+	.text-cream-ticket {
+		color: var(--color-cream-muted);
+	}
+
+	/* ========== HEADER ========== */
+	.header-bar {
+		background: var(--color-surface);
+		border-bottom: 1px solid var(--color-surface-raised);
+	}
+
+	/* ========== INPUT FIELDS ========== */
+	.input-field {
+		background: var(--color-surface);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 8px;
+		padding: 0.75rem 1rem;
+		font-size: 1rem;
+		color: var(--color-cream);
+		transition: all 0.15s ease;
+	}
+
+	.input-field:focus {
+		outline: none;
+		border-color: var(--color-gold);
+		background: var(--color-surface-raised);
+	}
+
+	.input-field::placeholder {
+		color: var(--color-cream-muted);
+	}
+
+	/* ========== BUTTONS ========== */
+	.btn-primary {
+		background: var(--color-curtain-red);
+		color: var(--color-cream);
+		font-family: var(--font-display);
+		font-weight: 500;
+		letter-spacing: 0.02em;
+		padding: 0.75rem 1.5rem;
+		border: none;
+		border-radius: 8px;
+		transition: all 0.15s ease;
+		text-transform: uppercase;
+		font-size: 0.875rem;
+	}
+
+	.btn-primary:hover {
+		background: var(--color-curtain-dark);
+		transform: translateY(-1px);
+	}
+
+	.btn-primary:active {
+		transform: translateY(0);
+	}
+
+	.btn-secondary {
+		background: transparent;
+		color: var(--color-cream-muted);
+		border: 1px solid var(--color-surface-raised);
+		padding: 0.5rem 1rem;
+		border-radius: 6px;
+		font-size: 0.875rem;
+		font-family: var(--font-display);
+		font-weight: 500;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		transition: all 0.15s ease;
+	}
+
+	.btn-secondary:hover {
+		background: var(--color-surface-raised);
+		color: var(--color-cream);
+		border-color: var(--color-gold-muted);
+	}
+
+	.btn-icon {
+		background: var(--color-surface);
+		border: 1px solid var(--color-surface-raised);
+		color: var(--color-cream-muted);
+		padding: 0.5rem;
+		border-radius: 6px;
+		transition: all 0.15s ease;
+	}
+
+	.btn-icon:hover {
+		background: var(--color-surface-raised);
+		color: var(--color-cream);
+	}
+
+	/* ========== MOVIE POSTER CARD ========== */
+	.poster-card {
+		position: relative;
+		background: var(--color-surface);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 12px;
+		overflow: hidden;
+		transition: all 0.2s ease;
+		box-shadow: var(--shadow-md);
+	}
+
+	.poster-card:hover {
+		transform: translateY(-4px);
+		border-color: var(--color-gold-muted);
+		box-shadow: var(--shadow-xl);
+	}
+
+	.poster-image {
+		width: 100%;
+		aspect-ratio: 2/3;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.poster-card:hover .poster-image {
+		transform: scale(1.02);
+	}
+
+	.poster-overlay {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		padding: 1rem;
+		background: linear-gradient(0deg,
+			rgba(9, 9, 11, 0.95) 0%,
+			rgba(9, 9, 11, 0.6) 60%,
+			transparent 100%);
+	}
+
+	.poster-placeholder {
+		width: 100%;
+		aspect-ratio: 2/3;
+		background: var(--color-surface-raised);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--color-cream-muted);
+	}
+
+	/* Watched overlay badge */
+	.watched-badge {
+		position: absolute;
+		top: 0.5rem;
+		right: 0.5rem;
+		background: var(--color-success);
+		color: white;
+		padding: 0.25rem 0.5rem;
+		border-radius: 4px;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	/* ========== RATING COMPONENTS ========== */
+	.rating-badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 2rem;
+		height: 2rem;
+		padding: 0 0.5rem;
+		border-radius: 6px;
+		font-family: var(--font-display);
+		font-weight: 600;
+		font-size: 0.875rem;
+		border: 1px solid;
+	}
+
+	.rating-low {
+		background: rgba(239, 68, 68, 0.15);
+		border-color: var(--color-rating-low);
+		color: var(--color-rating-low);
+	}
+
+	.rating-mid {
+		background: rgba(245, 158, 11, 0.15);
+		border-color: var(--color-rating-mid);
+		color: var(--color-rating-mid);
+	}
+
+	.rating-high {
+		background: rgba(34, 197, 94, 0.15);
+		border-color: var(--color-rating-high);
+		color: var(--color-rating-high);
+	}
+
+	.rating-empty {
+		background: var(--color-surface);
+		border-color: var(--color-surface-raised);
+		color: var(--color-cream-muted);
+	}
+
+	/* Rating input field */
+	.rating-input {
+		width: 4rem;
+		text-align: center;
+		background: var(--color-surface);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 6px;
+		padding: 0.5rem;
+		font-family: var(--font-display);
+		font-weight: 600;
+		color: var(--color-cream);
+		color-scheme: dark;
+		transition: all 0.15s ease;
+	}
+
+	.rating-input::placeholder {
+		color: var(--color-cream-muted);
+		opacity: 1;
+	}
+
+	.rating-input:focus {
+		outline: none;
+		border-color: var(--color-gold);
+	}
+
+	/* ========== CARDS & SECTIONS ========== */
+	.card {
+		background: var(--color-surface);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 12px;
+		box-shadow: var(--shadow-md);
+	}
+
+	.card-header {
+		border-bottom: 1px solid var(--color-surface-raised);
+		padding: 1rem 1.5rem;
+	}
+
+	.group-section {
+		border-left: 2px solid var(--color-gold-muted);
+		padding-left: 1.5rem;
+	}
+
+	.group-title {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: var(--color-cream);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	/* ========== SEARCH RESULTS ========== */
+	.search-result {
+		display: flex;
+		gap: 1rem;
+		padding: 1rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 8px;
+		transition: all 0.15s ease;
+	}
+
+	.search-result:hover {
+		border-color: var(--color-gold-muted);
+		background: var(--color-surface-raised);
+	}
+
+	.search-poster {
+		width: 80px;
+		height: 120px;
+		object-fit: cover;
+		border-radius: 6px;
+		background: var(--color-surface-raised);
+	}
+
+	/* ========== MOVIE DETAIL PAGE ========== */
+	.detail-poster {
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 12px;
+		box-shadow: var(--shadow-xl);
+	}
+
+	.detail-title {
+		font-family: var(--font-display);
+		font-size: 2.5rem;
+		font-weight: 700;
+		color: var(--color-cream);
+		line-height: 1.2;
+	}
+
+	.detail-meta {
+		color: var(--color-cream-muted);
+		font-size: 1rem;
+	}
+
+	.synopsis-text {
+		font-size: 1.125rem;
+		line-height: 1.8;
+		color: var(--color-cream-muted);
+	}
+
+	/* ========== DIVIDERS ========== */
+	.divider {
+		height: 1px;
+		background: var(--color-surface-raised);
+	}
+
+	.divider-ornate {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		color: var(--color-cream-muted);
+	}
+
+	.divider-ornate::before,
+	.divider-ornate::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: var(--color-surface-raised);
+	}
+
+	/* ========== TOAST NOTIFICATIONS ========== */
+	.toast {
+		padding: 1rem 1.5rem;
+		border-radius: 8px;
+		box-shadow: var(--shadow-lg);
+		font-weight: 500;
+	}
+
+	.toast-success {
+		background: var(--color-success);
+		color: white;
+	}
+
+	.toast-error {
+		background: var(--color-error);
+		color: white;
+	}
+
+	.toast-enter {
+		animation: slideIn 0.3s ease forwards;
+	}
+
+	.toast-exit {
+		animation: slideOut 0.3s ease forwards;
+	}
+
+	/* ========== LOGIN PAGE ========== */
+	.login-card {
+		background: var(--color-surface);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 16px;
+		box-shadow: var(--shadow-xl);
+	}
+
+	/* ========== HTMX STATES ========== */
+	.htmx-request .htmx-indicator {
+		display: inline-block;
+	}
+
+	.htmx-indicator {
+		display: none;
+	}
+
+	.htmx-request.htmx-indicator {
+		display: inline-block;
+	}
+}
+
+/* =============================================================================
+   UTILITIES
+   ============================================================================= */
+
+@layer utilities {
+	.animate-spin {
+		animation: spin 1s linear infinite;
+	}
+
+	.shadow-glow {
+		box-shadow: 0 0 20px rgba(217, 119, 6, 0.2);
+	}
+}
+
+/* =============================================================================
+   KEYFRAMES
+   ============================================================================= */
+
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes slideOut {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}

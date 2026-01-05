@@ -1,0 +1,129 @@
+package layout
+
+templ Base(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>{ title } | Seenema</title>
+
+		<!-- Favicons -->
+		<link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+
+		<!-- Fonts -->
+		<link rel="preconnect" href="https://fonts.googleapis.com"/>
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+		<!-- HTMX -->
+		<script src="/static/htmx.min.js"></script>
+
+		<!-- Tailwind + Custom Styles -->
+		<link rel="stylesheet" href="/static/styles.css"/>
+	</head>
+	<body class="antialiased min-h-screen" hx-boost="true">
+		<!-- Toast Container -->
+		<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+		{ children... }
+
+		@toastScript()
+	</body>
+	</html>
+}
+
+templ toastScript() {
+	<script>
+		(function () {
+			if (window.__toastHandlersInitialized) {
+				return;
+			}
+			window.__toastHandlersInitialized = true;
+
+			// Toast handling
+			document.body.addEventListener('showToast', function(evt) {
+				const detail = evt.detail || {};
+				const message = detail.message || 'Action completed';
+				const type = detail.type || 'success';
+				const id = detail.id || '';
+				const now = Date.now();
+				const toastKey = `${id}:${type}:${message}`;
+				const lastToast = window.__lastToast || {};
+
+				if (lastToast.key === toastKey && now - lastToast.time < 500) {
+					return;
+				}
+
+				window.__lastToast = { key: toastKey, time: now };
+
+				const toast = document.createElement('div');
+				toast.className = `toast toast-enter ${type === 'error' ? 'toast-error' : 'toast-success'}`;
+
+				const svgNS = 'http://www.w3.org/2000/svg';
+				const icon = document.createElementNS(svgNS, 'svg');
+				icon.setAttribute('class', 'w-5 h-5');
+				icon.setAttribute('fill', 'none');
+				icon.setAttribute('stroke', 'currentColor');
+				icon.setAttribute('viewBox', '0 0 24 24');
+
+				const path = document.createElementNS(svgNS, 'path');
+				path.setAttribute('stroke-linecap', 'round');
+				path.setAttribute('stroke-linejoin', 'round');
+				path.setAttribute('stroke-width', '2');
+				path.setAttribute('d', type === 'error'
+					? 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+					: 'M5 13l4 4L19 7');
+				icon.appendChild(path);
+
+				const content = document.createElement('div');
+				content.className = 'flex items-center gap-3';
+				content.appendChild(icon);
+
+				const msgSpan = document.createElement('span');
+				msgSpan.className = 'font-medium';
+				msgSpan.textContent = message;
+				content.appendChild(msgSpan);
+				toast.appendChild(content);
+
+				const container = document.getElementById('toast-container');
+				container.appendChild(toast);
+
+				setTimeout(() => {
+					toast.classList.remove('toast-enter');
+					toast.classList.add('toast-exit');
+					setTimeout(() => toast.remove(), 300);
+				}, 3000);
+			});
+
+			// Refresh groups handler
+			document.body.addEventListener('refreshGroups', function() {
+				const dashboard = document.getElementById('dashboard-content');
+				if (dashboard) {
+					htmx.ajax('GET', '/dashboard-content', {target: '#dashboard-content', swap: 'innerHTML'});
+				}
+			});
+		})();
+	</script>
+}
+
+templ Header() {
+	<header class="header-bar">
+		<div class="max-w-7xl mx-auto px-4 py-4">
+			<div class="flex items-center justify-between">
+				<a href="/" class="flex items-center gap-3 group">
+					<div class="text-2xl">🎬</div>
+					<h1 class="text-marquee text-xl tracking-wider">Seenema</h1>
+				</a>
+				<nav class="flex items-center gap-4">
+					<form action="/logout" method="POST" class="inline">
+						<button type="submit" class="btn-secondary text-sm">
+							Logout
+						</button>
+					</form>
+				</nav>
+			</div>
+		</div>
+	</header>
+}
+

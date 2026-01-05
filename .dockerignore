@@ -1,0 +1,16 @@
+.git
+.github
+.idea
+.vscode
+.DS_Store
+*.swp
+*.swo
+*~
+node_modules
+bin
+dist
+tmp
+coverage
+local.mk
+.env
+.env.*
