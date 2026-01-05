@@ -59,6 +59,12 @@ func (s *Server) Router() http.Handler {
 	// Root-level static files
 	for _, file := range []string{
 		"favicon.ico",
+		"apple-touch-icon.png",
+		"favicon-16x16.png",
+		"favicon-32x32.png",
+		"android-chrome-192x192.png",
+		"android-chrome-512x512.png",
+		"site.webmanifest",
 	} {
 		r.Get("/"+file, serveStaticFile("static/"+file))
 	}
@@ -125,4 +131,3 @@ func withCacheControl(cacheControl string, next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-
