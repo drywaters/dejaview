@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"sort"
 
 	"github.com/drywaters/seenema/internal/model"
 	"github.com/drywaters/seenema/internal/repository"
@@ -82,6 +83,11 @@ func (h *DashboardHandler) getDashboardData(ctx context.Context) ([]pages.GroupD
 			Entries: entries,
 		})
 	}
+
+	// Sort groups by number of entries (descending), so larger groups appear first
+	sort.Slice(groupDataList, func(i, j int) bool {
+		return len(groupDataList[i].Entries) > len(groupDataList[j].Entries)
+	})
 
 	return groupDataList, persons, currentGroup, nil
 }

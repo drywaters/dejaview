@@ -43,13 +43,21 @@ templ DashboardContent(groups []GroupData, persons []*model.Person, currentGroup
 					hx-trigger="input changed delay:300ms, search"
 					hx-target="#search-results"
 				/>
-				<select name="group_number" id="add-group-select" class="input-field w-32">
-					for i := 1; i <= currentGroup + 1; i++ {
-						<option value={ ui.IntToStr(i) } selected?={ i == currentGroup }>
-							Group { ui.IntToStr(i) }
-						</option>
-					}
-				</select>
+				<div class="flex items-center gap-2">
+					<label for="add-group-select" class="text-cream-ticket text-sm whitespace-nowrap">Add to:</label>
+					<select name="group_number" id="add-group-select" class="input-field w-40">
+						if len(groups) == 0 {
+							<option value="1" selected>Group 1 (New)</option>
+						} else {
+							for _, group := range groups {
+								<option value={ ui.IntToStr(group.Number) } selected?={ group.Number == currentGroup }>
+									Group { ui.IntToStr(group.Number) } ({ ui.IntToStr(len(group.Entries)) })
+								</option>
+							}
+							<option value={ ui.IntToStr(currentGroup + 1) }>+ New Group</option>
+						}
+					</select>
+				</div>
 			</div>
 
 			<div id="search-results"></div>

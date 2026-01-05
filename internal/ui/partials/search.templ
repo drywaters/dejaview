@@ -49,14 +49,8 @@ templ SearchResultCard(result tmdb.SearchResult) {
 			}
 		</div>
 		
-		<form hx-post="/api/tmdb/add" hx-swap="none" class="flex-shrink-0">
+		<form hx-post="/api/tmdb/add" hx-swap="none" class="flex-shrink-0" hx-vals="js:{group_number: document.getElementById('add-group-select').value}">
 			<input type="hidden" name="tmdb_id" value={ ui.IntToStr(result.ID) }/>
-			<input
-				type="hidden"
-				name="group_number"
-				value=""
-				hx-vals="js:{group_number: document.getElementById('add-group-select').value}"
-			/>
 			<button type="submit" class="btn-primary text-sm whitespace-nowrap">
 				Add
 			</button>
