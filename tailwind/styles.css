@@ -479,6 +479,59 @@
 	.htmx-request.htmx-indicator {
 		display: inline-block;
 	}
+
+	/* ========== DRAG AND DROP ========== */
+	.draggable-item {
+		position: relative;
+		cursor: grab;
+		transition: transform 0.15s ease, box-shadow 0.15s ease;
+	}
+
+	.draggable-item:active {
+		cursor: grabbing;
+	}
+
+	.draggable-item.dragging {
+		opacity: 0.5;
+		transform: scale(0.98);
+	}
+
+	.drag-handle {
+		position: absolute;
+		top: 0.5rem;
+		left: 0.5rem;
+		z-index: 10;
+		background: rgba(9, 9, 11, 0.8);
+		color: var(--color-cream-muted);
+		padding: 0.375rem;
+		border-radius: 4px;
+		cursor: grab;
+		opacity: 0;
+		transition: opacity 0.15s ease, color 0.15s ease;
+	}
+
+	.draggable-item:hover .drag-handle {
+		opacity: 1;
+	}
+
+	.drag-handle:hover {
+		color: var(--color-gold);
+	}
+
+	.drag-handle:active {
+		cursor: grabbing;
+	}
+
+	.drag-placeholder {
+		background: var(--color-surface-raised);
+		border: 2px dashed var(--color-gold-muted);
+		border-radius: 12px;
+		opacity: 0.5;
+	}
+
+	.sortable-grid {
+		min-height: 100px;
+	}
 }
 
 /* =============================================================================

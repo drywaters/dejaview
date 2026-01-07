@@ -34,10 +34,11 @@ func applyPickedByPerson(entry *model.Entry, pickedByPersonDBID *uuid.UUID, pick
 
 // Create inserts a new entry into the database
 func (r *EntryRepository) Create(ctx context.Context, input model.CreateEntryInput) (*model.Entry, error) {
+	// Insert with position = max position in group + 1 (or 1 if no entries in group)
 	query := `
-		INSERT INTO entries (movie_id, group_number, notes, picked_by_person_id)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id, movie_id, group_number, watched_at, added_at, notes, picked_by_person_id`
+		INSERT INTO entries (movie_id, group_number, notes, picked_by_person_id, position)
+		VALUES ($1, $2, $3, $4, COALESCE((SELECT MAX(position) FROM entries WHERE group_number = $2), 0) + 1)
+		RETURNING id, movie_id, group_number, position, watched_at, added_at, notes, picked_by_person_id`
 
 	entry := &model.Entry{}
 	err := r.pool.QueryRow(ctx, query,
@@ -49,6 +50,7 @@ func (r *EntryRepository) Create(ctx context.Context, input model.CreateEntryInp
 		&entry.ID,
 		&entry.MovieID,
 		&entry.GroupNumber,
+		&entry.Position,
 		&entry.WatchedAt,
 		&entry.AddedAt,
 		&entry.Notes,
@@ -64,7 +66,7 @@ func (r *EntryRepository) Create(ctx context.Context, input model.CreateEntryInp
 // GetByID retrieves an entry by its ID with movie and ratings
 func (r *EntryRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Entry, error) {
 	query := `
-		SELECT e.id, e.movie_id, e.group_number, e.watched_at, e.added_at, e.notes, e.picked_by_person_id,
+		SELECT e.id, e.movie_id, e.group_number, e.position, e.watched_at, e.added_at, e.notes, e.picked_by_person_id,
 		       m.id, m.created_at, m.updated_at, m.title, m.release_year, m.poster_url, m.synopsis, m.runtime_minutes, m.tmdb_id, m.imdb_id, m.metadata_json,
 		       p.id, p.initial, p.name
 		FROM entries e
@@ -82,6 +84,7 @@ func (r *EntryRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Ent
 		&entry.ID,
 		&entry.MovieID,
 		&entry.GroupNumber,
+		&entry.Position,
 		&entry.WatchedAt,
 		&entry.AddedAt,
 		&entry.Notes,
@@ -124,7 +127,7 @@ func (r *EntryRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Ent
 // GetByMovieAndGroup retrieves an entry by movie ID and group number
 func (r *EntryRepository) GetByMovieAndGroup(ctx context.Context, movieID uuid.UUID, groupNumber int) (*model.Entry, error) {
 	query := `
-		SELECT id, movie_id, group_number, watched_at, added_at, notes, picked_by_person_id
+		SELECT id, movie_id, group_number, position, watched_at, added_at, notes, picked_by_person_id
 		FROM entries
 		WHERE movie_id = $1 AND group_number = $2`
 
@@ -133,6 +136,7 @@ func (r *EntryRepository) GetByMovieAndGroup(ctx context.Context, movieID uuid.U
 		&entry.ID,
 		&entry.MovieID,
 		&entry.GroupNumber,
+		&entry.Position,
 		&entry.WatchedAt,
 		&entry.AddedAt,
 		&entry.Notes,
@@ -241,14 +245,14 @@ func (r *EntryRepository) getRatingsForEntries(ctx context.Context, entryIDs []u
 // ListByGroup retrieves all entries for a specific group with movie and ratings
 func (r *EntryRepository) ListByGroup(ctx context.Context, groupNumber int) ([]*model.Entry, error) {
 	query := `
-		SELECT e.id, e.movie_id, e.group_number, e.watched_at, e.added_at, e.notes, e.picked_by_person_id,
+		SELECT e.id, e.movie_id, e.group_number, e.position, e.watched_at, e.added_at, e.notes, e.picked_by_person_id,
 		       m.id, m.created_at, m.updated_at, m.title, m.release_year, m.poster_url, m.synopsis, m.runtime_minutes, m.tmdb_id, m.imdb_id, m.metadata_json,
 		       p.id, p.initial, p.name
 		FROM entries e
 		JOIN movies m ON e.movie_id = m.id
 		LEFT JOIN persons p ON e.picked_by_person_id = p.id
 		WHERE e.group_number = $1
-		ORDER BY e.added_at DESC`
+		ORDER BY e.position ASC`
 
 	rows, err := r.pool.Query(ctx, query, groupNumber)
 	if err != nil {
@@ -268,6 +272,7 @@ func (r *EntryRepository) ListByGroup(ctx context.Context, groupNumber int) ([]*
 			&entry.ID,
 			&entry.MovieID,
 			&entry.GroupNumber,
+			&entry.Position,
 			&entry.WatchedAt,
 			&entry.AddedAt,
 			&entry.Notes,
@@ -399,5 +404,36 @@ func (r *EntryRepository) ClearWatchedDate(ctx context.Context, id uuid.UUID) er
 	if err != nil {
 		return fmt.Errorf("clear watched date: %w", err)
 	}
+	return nil
+}
+
+// ReorderEntries updates the positions of entries within a group
+// entryIDs should be in the desired order (first = position 1)
+func (r *EntryRepository) ReorderEntries(ctx context.Context, groupNumber int, entryIDs []uuid.UUID) error {
+	if len(entryIDs) == 0 {
+		return nil
+	}
+
+	// Use a transaction to ensure atomicity
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	// Update each entry's position
+	query := `UPDATE entries SET position = $1 WHERE id = $2 AND group_number = $3`
+	for i, entryID := range entryIDs {
+		position := i + 1 // Positions start at 1
+		_, err := tx.Exec(ctx, query, position, entryID, groupNumber)
+		if err != nil {
+			return fmt.Errorf("update entry position: %w", err)
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("commit transaction: %w", err)
+	}
+
 	return nil
 }

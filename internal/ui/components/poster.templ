@@ -40,15 +40,14 @@ templ PosterCard(entry *model.Entry, showRatings bool) {
 				{ entry.PickedByPerson.Name }
 			</div>
 		}
-
 		@Poster(entry.Movie, "w-full")
-		
+
 		<div class="poster-overlay">
 			<h3 class="font-display font-semibold text-gold truncate">{ entry.Movie.Title }</h3>
 			if entry.Movie.ReleaseYear != nil {
 				<p class="text-sm text-cream-ticket opacity-70">{ ui.IntToStr(*entry.Movie.ReleaseYear) }</p>
 			}
-			
+
 			if showRatings && len(entry.Ratings) > 0 {
 				<div class="flex items-center gap-1 mt-2">
 					for _, rating := range entry.Ratings {
@@ -65,4 +64,55 @@ templ PosterCard(entry *model.Entry, showRatings bool) {
 			}
 		</div>
 	</a>
+}
+
+// DraggablePosterCard renders a draggable movie poster card for reordering
+templ DraggablePosterCard(entry *model.Entry, showRatings bool) {
+	<div class="draggable-item" data-entry-id={ entry.ID.String() }>
+		<div class="drag-handle">
+			<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+				<path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
+			</svg>
+		</div>
+		<a href={ templ.SafeURL("/movies/" + entry.ID.String()) } class="poster-card block">
+			if entry.IsWatched() {
+				<div class="watched-badge flex items-center gap-1">
+					<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+						<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+					</svg>
+					Watched
+				</div>
+			}
+
+			if entry.PickedByPerson != nil {
+				<div class="picker-badge" title={ "Picked by " + entry.PickedByPerson.Name }>
+					{ entry.PickedByPerson.Name }
+				</div>
+			}
+
+			@Poster(entry.Movie, "w-full")
+
+			<div class="poster-overlay">
+				<h3 class="font-display font-semibold text-gold truncate">{ entry.Movie.Title }</h3>
+				if entry.Movie.ReleaseYear != nil {
+					<p class="text-sm text-cream-ticket opacity-70">{ ui.IntToStr(*entry.Movie.ReleaseYear) }</p>
+				}
+
+				if showRatings && len(entry.Ratings) > 0 {
+					<div class="flex items-center gap-1 mt-2">
+						for _, rating := range entry.Ratings {
+							<span class={ "rating-badge text-xs", rating.RatingColor() }>
+								{ rating.Person.Initial }
+							</span>
+						}
+						if avg := entry.AverageRating(); avg != nil {
+							<span class="ml-auto text-gold font-display font-bold text-sm">
+								{ ui.FormatFloat(*avg) }
+							</span>
+						}
+					</div>
+				}
+			</div>
+		</a>
+	</div>
 }

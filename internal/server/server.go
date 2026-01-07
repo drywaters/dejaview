@@ -106,8 +106,9 @@ func (s *Server) Router() http.Handler {
 		r.Post("/api/entries/{id}/watched", entryHandler.MarkWatched)
 		r.Delete("/api/entries/{id}/watched", entryHandler.ClearWatched)
 
-		// Group partial
+		// Group partial and reordering
 		r.Get("/partials/group/{num}", entryHandler.GroupPartial)
+		r.Post("/api/groups/{num}/reorder", entryHandler.Reorder)
 
 		// Rating API endpoints
 		ratingHandler := handler.NewRatingHandler(s.ratingRepo, s.entryRepo, s.personRepo)
