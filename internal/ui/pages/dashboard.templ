@@ -94,9 +94,9 @@ templ GroupSection(groupNum int, entries []*model.Entry, persons []*model.Person
 		if len(entries) == 0 {
 			<p class="text-cream-ticket opacity-50 italic">No movies in this group yet.</p>
 		} else {
-			<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+			<div class="sortable-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4" data-group={ ui.IntToStr(groupNum) }>
 				for _, entry := range entries {
-					@components.PosterCard(entry, true)
+					@components.DraggablePosterCard(entry, true)
 				}
 			</div>
 		}

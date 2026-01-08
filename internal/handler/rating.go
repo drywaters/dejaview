@@ -185,3 +185,4 @@ func (h *RatingHandler) RatingForm(w http.ResponseWriter, r *http.Request) {
 
 	partials.RatingInputForm(entry.ID, person, existingScore).Render(ctx, w)
 }
+

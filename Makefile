@@ -51,3 +51,4 @@ docker-buildx: templ tail-prod ## Build and push multi-arch Docker image using b
 help: ## Show this help menu
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make <target>\n\nTargets:\n"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-20s %s\n", $$1, $$2} END {printf "\n"}' $(MAKEFILE_LIST)
 
+

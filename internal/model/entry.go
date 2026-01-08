@@ -8,13 +8,14 @@ import (
 
 // Entry represents a movie entry in a watch group
 type Entry struct {
-	ID                uuid.UUID  `json:"id"`
-	MovieID           uuid.UUID  `json:"movie_id"`
-	GroupNumber       int        `json:"group_number"`
-	WatchedAt         *time.Time `json:"watched_at,omitempty"` // nil = not yet watched
-	AddedAt           time.Time  `json:"added_at"`
-	Notes             *string    `json:"notes,omitempty"`
-	PickedByPersonID  *uuid.UUID `json:"picked_by_person_id,omitempty"`
+	ID               uuid.UUID  `json:"id"`
+	MovieID          uuid.UUID  `json:"movie_id"`
+	GroupNumber      int        `json:"group_number"`
+	Position         int        `json:"position"`             // Position within the group (1 = first)
+	WatchedAt        *time.Time `json:"watched_at,omitempty"` // nil = not yet watched
+	AddedAt          time.Time  `json:"added_at"`
+	Notes            *string    `json:"notes,omitempty"`
+	PickedByPersonID *uuid.UUID `json:"picked_by_person_id,omitempty"`
 
 	// Joined data (populated by repository)
 	Movie          *Movie    `json:"movie,omitempty"`
@@ -85,3 +86,4 @@ func (e *Entry) GetRatingByInitial(initial string) *Rating {
 	}
 	return nil
 }
+

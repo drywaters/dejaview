@@ -19,3 +19,4 @@ INSERT INTO persons (initial, name) VALUES
 DROP TABLE IF EXISTS persons;
 -- +goose StatementEnd
 
+

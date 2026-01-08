@@ -32,3 +32,4 @@ USER seenema
 EXPOSE 4600
 CMD ["./seenema"]
 
+

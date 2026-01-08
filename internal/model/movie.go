@@ -69,3 +69,4 @@ func formatDuration(hours, minutes int) string {
 func formatMinutes(minutes int) string {
 	return strconv.Itoa(minutes) + "m"
 }
+

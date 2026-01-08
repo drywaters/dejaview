@@ -92,3 +92,4 @@ func (h *DashboardHandler) getDashboardData(ctx context.Context) ([]pages.GroupD
 	return groupDataList, persons, currentGroup, nil
 }
 
+

@@ -24,3 +24,4 @@ CREATE INDEX idx_entries_watched_at ON entries(watched_at) WHERE watched_at IS N
 DROP TABLE IF EXISTS entries;
 -- +goose StatementEnd
 
+

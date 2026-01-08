@@ -86,3 +86,4 @@ jobs:
           : "${MANAGER_REPO_PATH:=/srv/git/seenema-ci.git}"
           git remote add local "ssh://git@${MANAGER_HOST}/${MANAGER_REPO_PATH}"
           git push --force local HEAD:refs/heads/main
+

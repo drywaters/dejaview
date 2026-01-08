@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -213,4 +214,47 @@ func (h *EntryHandler) GroupPartial(w http.ResponseWriter, r *http.Request) {
 	}
 
 	partials.GroupSection(groupNum, entries, persons).Render(ctx, w)
+}
+
+// ReorderRequest represents the JSON body for reordering entries
+type ReorderRequest struct {
+	EntryIDs []string `json:"entry_ids"`
+}
+
+// Reorder updates the order of entries within a group
+func (h *EntryHandler) Reorder(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	groupNumStr := chi.URLParam(r, "num")
+	groupNum, err := strconv.Atoi(groupNumStr)
+	if err != nil {
+		http.Error(w, "Invalid group number", http.StatusBadRequest)
+		return
+	}
+
+	var req ReorderRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
+
+	// Convert string IDs to UUIDs
+	entryIDs := make([]uuid.UUID, 0, len(req.EntryIDs))
+	for _, idStr := range req.EntryIDs {
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			slog.Warn("invalid entry id in reorder request", "entry_id", idStr, "error", err)
+			http.Error(w, "Invalid entry ID", http.StatusBadRequest)
+			return
+		}
+		entryIDs = append(entryIDs, id)
+	}
+
+	if err := h.entryRepo.ReorderEntries(ctx, groupNum, entryIDs); err != nil {
+		slog.Error("failed to reorder entries", "error", err)
+		http.Error(w, "Failed to reorder entries", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

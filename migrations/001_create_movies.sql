@@ -56,3 +56,4 @@ BEGIN
 END $$;
 DROP TABLE IF EXISTS movies;
 -- +goose StatementEnd
+

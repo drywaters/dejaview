@@ -197,3 +197,4 @@ func (h *MovieHandler) AddFromTMDB(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("HX-Trigger", `{"showToast": {"message": "Movie added!", "type": "success"}, "refreshGroups": true}`)
 	w.WriteHeader(http.StatusOK)
 }
+

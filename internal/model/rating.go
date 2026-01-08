@@ -47,3 +47,4 @@ func ScoreColorClass(score float64) string {
 	}
 	return "rating-high"
 }
+

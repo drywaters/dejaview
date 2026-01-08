@@ -107,3 +107,4 @@ func run() error {
 	slog.Info("server stopped")
 	return nil
 }
+

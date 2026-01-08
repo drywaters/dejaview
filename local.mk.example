@@ -10,3 +10,4 @@ export PORT=4600
 export LOG_LEVEL=debug
 # Set to false for local HTTP dev, defaults to true for production HTTPS
 export SECURE_COOKIES=false
+

@@ -113,3 +113,4 @@ func (r *RatingRepository) GetAverageForEntry(ctx context.Context, entryID uuid.
 
 	return avg, nil
 }
+

@@ -183,3 +183,4 @@ func ReleaseYear(releaseDate string) *int {
 		int(releaseDate[3]-'0')
 	return &year
 }
+
