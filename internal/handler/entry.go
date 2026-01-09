@@ -140,6 +140,10 @@ func (h *EntryHandler) MarkWatched(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	if entry == nil {
+		http.Error(w, "Entry not found", http.StatusNotFound)
+		return
+	}
 
 	persons, err := h.personRepo.GetAll(ctx)
 	if err != nil {
@@ -174,6 +178,10 @@ func (h *EntryHandler) ClearWatched(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("failed to get entry", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if entry == nil {
+		http.Error(w, "Entry not found", http.StatusNotFound)
 		return
 	}
 

@@ -82,6 +82,10 @@ func (h *RatingHandler) SaveRating(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	if entry == nil {
+		http.Error(w, "Entry not found", http.StatusNotFound)
+		return
+	}
 
 	person, err := h.personRepo.GetByID(ctx, personID)
 	if err != nil {
@@ -133,6 +137,10 @@ func (h *RatingHandler) DeleteRating(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	if entry == nil {
+		http.Error(w, "Entry not found", http.StatusNotFound)
+		return
+	}
 
 	person, err := h.personRepo.GetByID(ctx, personID)
 	if err != nil {
@@ -174,11 +182,19 @@ func (h *RatingHandler) RatingForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	if entry == nil {
+		http.Error(w, "Entry not found", http.StatusNotFound)
+		return
+	}
 
 	person, err := h.personRepo.GetByID(ctx, personID)
 	if err != nil {
 		slog.Error("failed to get person", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if person == nil {
+		http.Error(w, "Person not found", http.StatusNotFound)
 		return
 	}
 
