@@ -77,6 +77,7 @@ func run() error {
 	assetsVersion, err := assets.Version(
 		filepath.Join("static", "styles.css"),
 		filepath.Join("static", "dragdrop.js"),
+		filepath.Join("static", "rating.js"),
 		filepath.Join("static", "htmx.min.js"),
 	)
 	if err != nil {

@@ -11,7 +11,9 @@ templ RatingsGrid(entry *model.Entry, persons []*model.Person) {
 	<div id="ratings-section" class="card p-6">
 		<div class="flex items-center justify-between mb-6">
 			<h3 class="font-display text-gold text-lg uppercase tracking-wider">Family Ratings</h3>
-			@components.AverageRating(entry.AverageRating(), entry.RatingCount())
+			<div id="average-rating">
+				@components.AverageRating(entry.AverageRating(), entry.RatingCount())
+			</div>
 		</div>
 
 		<div class="divider mb-6"></div>
@@ -25,7 +27,7 @@ templ RatingsGrid(entry *model.Entry, persons []*model.Person) {
 }
 
 templ PersonRatingRow(entry *model.Entry, person *model.Person) {
-	<div class="flex items-center gap-3 p-3 rounded-lg bg-theater-black/50">
+	<div class="rating-row flex items-center gap-3 p-3 rounded-lg bg-theater-black/50">
 		<span class="font-display text-cream-ticket">{ person.Name }</span>
 		@components.RatingInput(entry.ID, person, getRatingScore(entry, person.ID))
 	</div>
@@ -36,6 +38,13 @@ templ RatingInputForm(entryID uuid.UUID, person *model.Person, currentScore *flo
 	@components.RatingInput(entryID, person, currentScore)
 }
 
+templ RatingRowUpdate(entry *model.Entry, person *model.Person) {
+	@PersonRatingRow(entry, person)
+	<div id="average-rating" hx-swap-oob="true">
+		@components.AverageRating(entry.AverageRating(), entry.RatingCount())
+	</div>
+}
+
 func getRatingScore(entry *model.Entry, personID uuid.UUID) *float64 {
 	for _, r := range entry.Ratings {
 		if r.PersonID == personID {
@@ -44,4 +53,3 @@ func getRatingScore(entry *model.Entry, personID uuid.UUID) *float64 {
 	}
 	return nil
 }
-

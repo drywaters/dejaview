@@ -23,8 +23,9 @@ templ RatingInput(entryID uuid.UUID, person *model.Person, currentScore *float64
 	<div class="flex items-center gap-2">
 		<form
 			hx-post="/api/ratings"
-			hx-trigger="change from:input"
-			hx-target="#ratings-section"
+			hx-trigger="blur changed from:input"
+			hx-sync="#ratings-section:queue"
+			hx-target="closest .rating-row"
 			hx-swap="outerHTML"
 			hx-validate="false"
 			class="flex items-center gap-2"
@@ -34,11 +35,12 @@ templ RatingInput(entryID uuid.UUID, person *model.Person, currentScore *float64
 			<input
 				type="number"
 				name="score"
+				data-person-id={ person.ID.String() }
 				min="0"
 				max="10"
 				step="0.5"
 				inputmode="decimal"
-				oninput="if (this.value === '') { return; } const v = parseFloat(this.value); if (!Number.isNaN(v)) { if (v > 10) this.value = '10'; if (v < 0) this.value = '0'; }"
+				oninput="if (this.value === '') { return; } const v = parseFloat(this.value); if (!Number.isNaN(v)) { if (v > 10) { this.value = '10'; } else if (v < 0) { this.value = '0'; } }"
 				if currentScore != nil {
 					value={ ui.FormatFloat(*currentScore) }
 				}
@@ -49,7 +51,7 @@ templ RatingInput(entryID uuid.UUID, person *model.Person, currentScore *float64
 		if currentScore != nil {
 			<button
 				hx-delete={ "/api/ratings/" + person.ID.String() + "/" + entryID.String() }
-				hx-target="#ratings-section"
+				hx-target="closest .rating-row"
 				hx-swap="outerHTML"
 				class="text-red-400 hover:text-red-300 transition-colors"
 				title="Clear rating"
@@ -79,4 +81,3 @@ templ AverageRating(avg *float64, ratingCount int) {
 		}
 	</div>
 }
-

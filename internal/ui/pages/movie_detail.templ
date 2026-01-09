@@ -102,7 +102,9 @@ templ MovieDetailPage(entry *model.Entry, persons []*model.Person) {
 					<div class="card p-6" id="ratings-section">
 						<div class="flex items-center justify-between mb-6">
 							<h3 class="font-display text-gold text-lg uppercase tracking-wider">Family Ratings</h3>
-							@components.AverageRating(entry.AverageRating(), entry.RatingCount())
+							<div id="average-rating">
+								@components.AverageRating(entry.AverageRating(), entry.RatingCount())
+							</div>
 						</div>
 
 						<div class="divider mb-6"></div>
@@ -173,7 +175,7 @@ templ WatchedStatusSection(entry *model.Entry) {
 }
 
 templ PersonRatingRow(entry *model.Entry, person *model.Person) {
-	<div class="flex items-center gap-3 p-3 rounded-lg bg-theater-black/50">
+	<div class="rating-row flex items-center gap-3 p-3 rounded-lg bg-theater-black/50">
 		<span class="font-display text-cream-ticket">{ person.Name }</span>
 		@components.RatingInput(entry.ID, person, getRatingScore(entry, person.ID))
 	</div>
