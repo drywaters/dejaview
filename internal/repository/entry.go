@@ -265,7 +265,7 @@ func (r *EntryRepository) ListByGroup(ctx context.Context, groupNumber int) ([]*
 		JOIN movies m ON e.movie_id = m.id
 		LEFT JOIN persons p ON e.picked_by_person_id = p.id
 		WHERE e.group_number = $1
-		ORDER BY e.position ASC`
+		ORDER BY e.position DESC`
 
 	rows, err := r.pool.Query(ctx, query, groupNumber)
 	if err != nil {
@@ -418,7 +418,7 @@ func (r *EntryRepository) ClearWatchedDate(ctx context.Context, id uuid.UUID) er
 }
 
 // ReorderEntries updates the positions of entries within a group
-// entryIDs should be in the desired order (first = position 1)
+// entryIDs should be in the desired visual order (first = highest position, displayed first)
 func (r *EntryRepository) ReorderEntries(ctx context.Context, groupNumber int, entryIDs []uuid.UUID) error {
 	if len(entryIDs) == 0 {
 		return nil
@@ -445,9 +445,11 @@ func (r *EntryRepository) ReorderEntries(ctx context.Context, groupNumber int, e
 		return fmt.Errorf("reorder entries count mismatch: group has %d matching entries, request has %d", groupCount, len(entryIDs))
 	}
 
+	// Assign positions in reverse order: first visual item gets highest position
+	// (since display is ORDER BY position DESC)
 	positions := make([]int, len(entryIDs))
 	for i := range entryIDs {
-		positions[i] = i + 1
+		positions[i] = len(entryIDs) - i
 	}
 
 	// Move current positions out of the way to avoid unique constraint conflicts.
