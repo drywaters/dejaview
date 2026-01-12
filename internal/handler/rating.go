@@ -17,9 +17,22 @@ import (
 
 // RatingHandler handles rating-related requests
 type RatingHandler struct {
-	ratingRepo *repository.RatingRepository
-	entryRepo  *repository.EntryRepository
-	personRepo *repository.PersonRepository
+	ratingRepo ratingRepository
+	entryRepo  entryRepository
+	personRepo personRepository
+}
+
+type ratingRepository interface {
+	Upsert(ctx context.Context, input model.UpsertRatingInput) (*model.Rating, error)
+	Delete(ctx context.Context, personID, entryID uuid.UUID) error
+}
+
+type entryRepository interface {
+	GetByID(ctx context.Context, id uuid.UUID) (*model.Entry, error)
+}
+
+type personRepository interface {
+	GetAll(ctx context.Context) ([]*model.Person, error)
 }
 
 // NewRatingHandler creates a new RatingHandler
@@ -121,6 +134,11 @@ func (h *RatingHandler) SaveRatings(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("failed to get entry", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if entry == nil {
+		slog.Error("entry not found after refetch", "entryID", entryID)
+		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	}
 
