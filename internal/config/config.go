@@ -27,13 +27,13 @@ func Load() (*Config, error) {
 	if cfg.Port, err = getEnv("PORT", "4600"); err != nil {
 		return nil, err
 	}
-	if cfg.DatabaseURL, err = getEnvOrFile("DATABASE_URL", "/run/secrets/seenema_database_url"); err != nil {
+	if cfg.DatabaseURL, err = getEnvOrFile("DATABASE_URL", "/run/secrets/dejaview_database_url"); err != nil {
 		return nil, err
 	}
-	if cfg.APIToken, err = getEnvOrFile("API_TOKEN", "/run/secrets/seenema_api_token"); err != nil {
+	if cfg.APIToken, err = getEnvOrFile("API_TOKEN", "/run/secrets/dejaview_api_token"); err != nil {
 		return nil, err
 	}
-	if cfg.TMDBAPIKey, err = getEnvOrFile("TMDB_API_KEY", "/run/secrets/seenema_tmdb_api_key"); err != nil {
+	if cfg.TMDBAPIKey, err = getEnvOrFile("TMDB_API_KEY", "/run/secrets/dejaview_tmdb_api_key"); err != nil {
 		return nil, err
 	}
 	if cfg.LogLevel, err = getEnv("LOG_LEVEL", "info"); err != nil {

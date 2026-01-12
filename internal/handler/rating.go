@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/drywaters/seenema/internal/model"
-	"github.com/drywaters/seenema/internal/repository"
-	"github.com/drywaters/seenema/internal/ui/partials"
+	"github.com/drywaters/dejaview/internal/model"
+	"github.com/drywaters/dejaview/internal/repository"
+	"github.com/drywaters/dejaview/internal/ui/partials"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )

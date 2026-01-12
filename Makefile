@@ -13,10 +13,10 @@ templ-watch: ## Watch templ files and regenerate on change
 
 # Local development (assumes tailwindcss binary is installed)
 run: templ tail-prod ## Generate templ, build Tailwind, and run the app
-	go run ./cmd/seenema
+	go run ./cmd/dejaview
 
 build: templ tail-prod ## Generate templ, build Tailwind, and build production binary
-	go build -o bin/seenema ./cmd/seenema
+	go build -o bin/dejaview ./cmd/dejaview
 
 # Tailwind (using standalone CLI binary)
 tail-watch: ## Build Tailwind in watch mode (requires tailwindcss CLI)

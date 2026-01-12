@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const cookieName = "seenema_session"
+const cookieName = "dejaview_session"
 
 // Auth middleware validates requests using either Bearer token or cookie.
 // Programmatic clients (iOS Shortcuts, CLI) use Authorization: Bearer <token>.

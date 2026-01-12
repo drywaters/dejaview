@@ -1,15 +1,15 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `cmd/seenema/main.go` is the entry point.
+- `cmd/dejaview/main.go` is the entry point.
 - `internal/` holds app code: handlers, middleware, repositories, models, server wiring, and config.
 - `internal/ui/` contains Templ templates (`components/`, `partials/`, `pages/`, `layout/`).
 - `tailwind/` is the source CSS; `static/` is the compiled assets output (e.g., `static/styles.css`).
 - `migrations/` stores ordered SQL migrations (e.g., `001_create_movies.sql`).
 
 ## Build, Test, and Development Commands
-- `make run`: generate Templ + Tailwind, then run the app (`go run ./cmd/seenema`).
-- `make build`: generate assets and build the production binary (`bin/seenema`).
+- `make run`: generate Templ + Tailwind, then run the app (`go run ./cmd/dejaview`).
+- `make build`: generate assets and build the production binary (`bin/dejaview`).
 - `make test`: run Go tests (`go test -v ./...`).
 - `make templ` / `make templ-watch`: generate Templ Go code (watch mode available).
 - `make tail-prod` / `make tail-watch`: build Tailwind CSS (watch requires Tailwind CLI).

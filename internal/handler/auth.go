@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/drywaters/seenema/internal/ui/pages"
+	"github.com/drywaters/dejaview/internal/ui/pages"
 )
 
-const cookieName = "seenema_session"
+const cookieName = "dejaview_session"
 
 // AuthHandler handles authentication
 type AuthHandler struct {

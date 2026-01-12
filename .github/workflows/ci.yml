@@ -56,7 +56,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Build and push seenema image
+      - name: Build and push dejaview image
         env:
           REGISTRY: ${{ env.IMAGE_REG }}
           IMAGE_REPO: ${{ env.IMAGE_REPO }}
@@ -83,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           : "${MANAGER_HOST:?Missing vars.MANAGER_HOST}"
-          : "${MANAGER_REPO_PATH:=/srv/git/seenema-ci.git}"
+          : "${MANAGER_REPO_PATH:=/srv/git/dejaview-ci.git}"
           git remote add local "ssh://git@${MANAGER_HOST}/${MANAGER_REPO_PATH}"
           git push --force local HEAD:refs/heads/main
 

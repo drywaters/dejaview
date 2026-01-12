@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/drywaters/seenema/internal/model"
+	"github.com/drywaters/dejaview/internal/model"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )

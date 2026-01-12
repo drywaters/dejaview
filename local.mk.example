@@ -1,7 +1,7 @@
 # Copy this file to local.mk and fill in your values
 # local.mk is gitignored
 
-export DATABASE_URL=postgres://user:password@localhost:5432/seenema?sslmode=disable
+export DATABASE_URL=postgres://user:password@localhost:5432/dejaview?sslmode=disable
 # Generate with: openssl rand -base64 32
 export API_TOKEN=your-secret-token-here
 # Get from https://www.themoviedb.org/settings/api

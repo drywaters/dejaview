@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/drywaters/seenema/internal/model"
-	"github.com/drywaters/seenema/internal/repository"
-	"github.com/drywaters/seenema/internal/ui/pages"
+	"github.com/drywaters/dejaview/internal/model"
+	"github.com/drywaters/dejaview/internal/repository"
+	"github.com/drywaters/dejaview/internal/ui/pages"
 )
 
 // DashboardHandler handles the main dashboard

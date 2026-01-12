@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/drywaters/seenema/internal/model"
+	"github.com/drywaters/dejaview/internal/model"
 	"github.com/google/uuid"
 )
 
