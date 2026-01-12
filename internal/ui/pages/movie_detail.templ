@@ -98,41 +98,33 @@ templ MovieDetailPage(entry *model.Entry, persons []*model.Person) {
 						</div>
 					}
 
-					<!-- Ratings Section -->
-					<div class="card p-6" id="ratings-section">
-						<div class="flex items-center justify-between mb-6">
-							<h3 class="font-display text-gold text-lg uppercase tracking-wider">Family Ratings</h3>
-							<div id="average-rating">
-								@components.AverageRating(entry.AverageRating(), entry.RatingCount())
+					<!-- Ratings Form -->
+					<form
+						hx-put={ "/api/entries/" + entry.ID.String() + "/ratings" }
+						hx-trigger="submit"
+						hx-target="#ratings-section"
+						hx-swap="outerHTML"
+					>
+						<div class="card p-6" id="ratings-section">
+							<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+								<h3 class="font-display text-gold text-lg uppercase tracking-wider">Family Ratings</h3>
+								<div class="flex items-center gap-4">
+									<div id="average-rating">
+										@components.AverageRating(entry.AverageRating(), entry.RatingCount())
+									</div>
+									<button type="submit" class="btn-primary">Save</button>
+								</div>
+							</div>
+
+							<div class="divider mb-6"></div>
+
+							<div class="grid grid-cols-2 gap-4">
+								for _, person := range persons {
+									@PersonRatingRowSimple(entry, person)
+								}
 							</div>
 						</div>
-
-						<div class="divider mb-6"></div>
-
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-							for _, person := range persons {
-								@PersonRatingRow(entry, person)
-							}
-						</div>
-					</div>
-
-					<!-- Notes Section -->
-					<div class="card p-6">
-						<h3 class="font-display text-gold text-lg uppercase tracking-wider mb-3">Notes</h3>
-						<form
-							hx-put={ "/api/entries/" + entry.ID.String() }
-							hx-trigger="submit"
-							hx-swap="none"
-						>
-							<textarea
-								name="notes"
-								rows="3"
-								placeholder="Add notes about the movie..."
-								class="input-field w-full resize-none"
-							>{ derefString(entry.Notes) }</textarea>
-							<button type="submit" class="btn-primary mt-2">Save Notes</button>
-						</form>
-					</div>
+					</form>
 				</div>
 			</div>
 		</main>
@@ -174,18 +166,11 @@ templ WatchedStatusSection(entry *model.Entry) {
 	</div>
 }
 
-templ PersonRatingRow(entry *model.Entry, person *model.Person) {
+templ PersonRatingRowSimple(entry *model.Entry, person *model.Person) {
 	<div class="rating-row flex items-center gap-3 p-3 rounded-lg bg-theater-black/50">
 		<span class="font-display text-cream-ticket">{ person.Name }</span>
-		@components.RatingInput(entry.ID, person, getRatingScore(entry, person.ID))
+		@components.RatingInputSimple(entry.ID, person, getRatingScore(entry, person.ID))
 	</div>
-}
-
-func derefString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }
 
 func formatDate(t *time.Time) string {

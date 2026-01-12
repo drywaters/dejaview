@@ -18,41 +18,28 @@ templ EmptyRatingBadge() {
 	<span class="rating-badge rating-empty">—</span>
 }
 
-// RatingInput renders an editable rating input
-templ RatingInput(entryID uuid.UUID, person *model.Person, currentScore *float64) {
+// RatingInputSimple renders an editable rating input without form wrapper
+templ RatingInputSimple(entryID uuid.UUID, person *model.Person, currentScore *float64) {
 	<div class="flex items-center gap-2">
-		<form
-			hx-post="/api/ratings"
-			hx-trigger="blur changed from:input"
-			hx-sync="#ratings-section:queue"
-			hx-target="closest .rating-row"
-			hx-swap="outerHTML"
-			hx-validate="false"
-			class="flex items-center gap-2"
-		>
-			<input type="hidden" name="person_id" value={ person.ID.String() }/>
-			<input type="hidden" name="entry_id" value={ entryID.String() }/>
-			<input
-				type="number"
-				name="score"
-				data-person-id={ person.ID.String() }
-				min="0"
-				max="10"
-				step="0.5"
-				inputmode="decimal"
-				oninput="if (this.value === '') { return; } const v = parseFloat(this.value); if (!Number.isNaN(v)) { if (v > 10) { this.value = '10'; } else if (v < 0) { this.value = '0'; } }"
-				if currentScore != nil {
-					value={ ui.FormatFloat(*currentScore) }
-				}
-				placeholder="—"
-				class="rating-input"
-			/>
-		</form>
+		<input
+			type="number"
+			name={ "rating[" + person.ID.String() + "]" }
+			data-person-id={ person.ID.String() }
+			min="0"
+			max="10"
+			step="0.5"
+			inputmode="decimal"
+			oninput="if (this.value === '') { return; } const v = parseFloat(this.value); if (!Number.isNaN(v)) { if (v > 10) { this.value = '10'; } else if (v < 0) { this.value = '0'; } }"
+			if currentScore != nil {
+				value={ ui.FormatFloat(*currentScore) }
+			}
+			placeholder="—"
+			class="rating-input"
+		/>
 		if currentScore != nil {
 			<button
-				hx-delete={ "/api/ratings/" + person.ID.String() + "/" + entryID.String() }
-				hx-target="closest .rating-row"
-				hx-swap="outerHTML"
+				type="button"
+				onclick="this.previousElementSibling.value = ''"
 				class="text-red-400 hover:text-red-300 transition-colors"
 				title="Clear rating"
 			>

@@ -112,9 +112,7 @@ func (s *Server) Router() http.Handler {
 
 		// Rating API endpoints
 		ratingHandler := handler.NewRatingHandler(s.ratingRepo, s.entryRepo, s.personRepo)
-		r.Post("/api/ratings", ratingHandler.SaveRating)
-		r.Delete("/api/ratings/{personId}/{entryId}", ratingHandler.DeleteRating)
-		r.Get("/partials/rating-form/{entryId}/{personId}", ratingHandler.RatingForm)
+		r.Put("/api/entries/{id}/ratings", ratingHandler.SaveRatings)
 	})
 
 	return r

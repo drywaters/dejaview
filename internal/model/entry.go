@@ -14,7 +14,6 @@ type Entry struct {
 	Position         int        `json:"position"`             // Position within the group (1 = first)
 	WatchedAt        *time.Time `json:"watched_at,omitempty"` // nil = not yet watched
 	AddedAt          time.Time  `json:"added_at"`
-	Notes            *string    `json:"notes,omitempty"`
 	PickedByPersonID *uuid.UUID `json:"picked_by_person_id,omitempty"`
 
 	// Joined data (populated by repository)
@@ -27,14 +26,12 @@ type Entry struct {
 type CreateEntryInput struct {
 	MovieID          uuid.UUID  `json:"movie_id"`
 	GroupNumber      int        `json:"group_number"`
-	Notes            *string    `json:"notes,omitempty"`
 	PickedByPersonID *uuid.UUID `json:"picked_by_person_id,omitempty"`
 }
 
 // UpdateEntryInput represents the input for updating an entry
 type UpdateEntryInput struct {
 	GroupNumber      *int       `json:"group_number,omitempty"`
-	Notes            *string    `json:"notes,omitempty"`
 	PickedByPersonID *uuid.UUID `json:"picked_by_person_id,omitempty"`
 }
 

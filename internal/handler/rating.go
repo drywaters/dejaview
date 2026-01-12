@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/drywaters/seenema/internal/model"
 	"github.com/drywaters/seenema/internal/repository"
@@ -30,52 +31,23 @@ func NewRatingHandler(ratingRepo *repository.RatingRepository, entryRepo *reposi
 	}
 }
 
-// SaveRating creates or updates a rating
-func (h *RatingHandler) SaveRating(w http.ResponseWriter, r *http.Request) {
+// SaveRatings handles saving all ratings in one request
+func (h *RatingHandler) SaveRatings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	entryIDStr := chi.URLParam(r, "id")
+	entryID, err := uuid.Parse(entryIDStr)
+	if err != nil {
+		http.Error(w, "Invalid entry ID", http.StatusBadRequest)
+		return
+	}
 
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Invalid form data", http.StatusBadRequest)
 		return
 	}
 
-	personIDStr := r.FormValue("person_id")
-	entryIDStr := r.FormValue("entry_id")
-	scoreStr := r.FormValue("score")
-
-	personID, err := uuid.Parse(personIDStr)
-	if err != nil {
-		http.Error(w, "Invalid person ID", http.StatusBadRequest)
-		return
-	}
-
-	entryID, err := uuid.Parse(entryIDStr)
-	if err != nil {
-		http.Error(w, "Invalid entry ID", http.StatusBadRequest)
-		return
-	}
-
-	score, err := strconv.ParseFloat(scoreStr, 64)
-	if err != nil || score < 0.0 || score > 10.0 {
-		http.Error(w, "Invalid score (must be 0.0-10.0)", http.StatusBadRequest)
-		return
-	}
-
-	_, err = h.ratingRepo.Upsert(ctx, model.UpsertRatingInput{
-		PersonID: personID,
-		EntryID:  entryID,
-		Score:    score,
-	})
-	if err != nil {
-		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-			return
-		}
-		slog.Error("failed to save rating", "error", err)
-		http.Error(w, "Failed to save rating", http.StatusInternalServerError)
-		return
-	}
-
-	// Return updated ratings section
+	// Get the entry to have current state
 	entry, err := h.entryRepo.GetByID(ctx, entryID)
 	if err != nil {
 		slog.Error("failed to get entry", "error", err)
@@ -87,125 +59,78 @@ func (h *RatingHandler) SaveRating(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	person, err := h.personRepo.GetByID(ctx, personID)
-	if err != nil {
-		slog.Error("failed to get person", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	if person == nil {
-		http.Error(w, "Person not found", http.StatusNotFound)
-		return
+	// Build a map of existing ratings for quick lookup
+	existingRatings := make(map[uuid.UUID]bool)
+	for _, r := range entry.Ratings {
+		existingRatings[r.PersonID] = true
 	}
 
-	w.Header().Set("HX-Trigger", `{"showToast": {"message": "Rating saved!", "type": "success"}}`)
-	partials.RatingRowUpdate(entry, person).Render(ctx, w)
-}
-
-// DeleteRating removes a rating
-func (h *RatingHandler) DeleteRating(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	personIDStr := chi.URLParam(r, "personId")
-	entryIDStr := chi.URLParam(r, "entryId")
-
-	personID, err := uuid.Parse(personIDStr)
-	if err != nil {
-		http.Error(w, "Invalid person ID", http.StatusBadRequest)
-		return
-	}
-
-	entryID, err := uuid.Parse(entryIDStr)
-	if err != nil {
-		http.Error(w, "Invalid entry ID", http.StatusBadRequest)
-		return
-	}
-
-	if err := h.ratingRepo.Delete(ctx, personID, entryID); err != nil {
-		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-			return
+	// Process ratings from form: rating[personID] = score
+	for key, values := range r.Form {
+		if !strings.HasPrefix(key, "rating[") || !strings.HasSuffix(key, "]") {
+			continue
 		}
-		slog.Error("failed to delete rating", "error", err)
-		http.Error(w, "Failed to delete rating", http.StatusInternalServerError)
-		return
+
+		// Extract person ID from rating[uuid]
+		personIDStr := key[7 : len(key)-1] // Remove "rating[" prefix and "]" suffix
+		personID, err := uuid.Parse(personIDStr)
+		if err != nil {
+			slog.Warn("invalid person ID in rating form", "key", key, "error", err)
+			continue
+		}
+
+		scoreStr := ""
+		if len(values) > 0 {
+			scoreStr = strings.TrimSpace(values[0])
+		}
+
+		if scoreStr == "" {
+			// Empty score - delete the rating if it exists
+			if existingRatings[personID] {
+				if err := h.ratingRepo.Delete(ctx, personID, entryID); err != nil {
+					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+						return
+					}
+					slog.Error("failed to delete rating", "error", err)
+				}
+			}
+		} else {
+			// Parse and save the rating
+			score, err := strconv.ParseFloat(scoreStr, 64)
+			if err != nil || score < 0.0 || score > 10.0 {
+				slog.Warn("invalid score value", "score", scoreStr, "personID", personID)
+				continue
+			}
+
+			_, err = h.ratingRepo.Upsert(ctx, model.UpsertRatingInput{
+				PersonID: personID,
+				EntryID:  entryID,
+				Score:    score,
+			})
+			if err != nil {
+				if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+					return
+				}
+				slog.Error("failed to save rating", "error", err)
+			}
+		}
 	}
 
-	// Return updated ratings section
-	entry, err := h.entryRepo.GetByID(ctx, entryID)
+	// Fetch updated entry and persons for response
+	entry, err = h.entryRepo.GetByID(ctx, entryID)
 	if err != nil {
 		slog.Error("failed to get entry", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	if entry == nil {
-		http.Error(w, "Entry not found", http.StatusNotFound)
-		return
-	}
 
-	person, err := h.personRepo.GetByID(ctx, personID)
+	persons, err := h.personRepo.GetAll(ctx)
 	if err != nil {
-		slog.Error("failed to get person", "error", err)
+		slog.Error("failed to get persons", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	if person == nil {
-		http.Error(w, "Person not found", http.StatusNotFound)
-		return
-	}
 
-	w.Header().Set("HX-Trigger", `{"showToast": {"message": "Rating deleted!", "type": "success"}}`)
-	partials.RatingRowUpdate(entry, person).Render(ctx, w)
-}
-
-// RatingForm renders the rating input form for a specific person/entry
-func (h *RatingHandler) RatingForm(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	entryIDStr := chi.URLParam(r, "entryId")
-	personIDStr := chi.URLParam(r, "personId")
-
-	entryID, err := uuid.Parse(entryIDStr)
-	if err != nil {
-		http.Error(w, "Invalid entry ID", http.StatusBadRequest)
-		return
-	}
-
-	personID, err := uuid.Parse(personIDStr)
-	if err != nil {
-		http.Error(w, "Invalid person ID", http.StatusBadRequest)
-		return
-	}
-
-	entry, err := h.entryRepo.GetByID(ctx, entryID)
-	if err != nil {
-		slog.Error("failed to get entry", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	if entry == nil {
-		http.Error(w, "Entry not found", http.StatusNotFound)
-		return
-	}
-
-	person, err := h.personRepo.GetByID(ctx, personID)
-	if err != nil {
-		slog.Error("failed to get person", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	if person == nil {
-		http.Error(w, "Person not found", http.StatusNotFound)
-		return
-	}
-
-	// Find existing rating if any
-	var existingScore *float64
-	for _, rating := range entry.Ratings {
-		if rating.PersonID == personID {
-			existingScore = &rating.Score
-			break
-		}
-	}
-
-	partials.RatingInputForm(entry.ID, person, existingScore).Render(ctx, w)
+	w.Header().Set("HX-Trigger", `{"showToast": {"message": "Saved!", "type": "success"}}`)
+	partials.RatingsUpdate(entry, persons).Render(ctx, w)
 }
