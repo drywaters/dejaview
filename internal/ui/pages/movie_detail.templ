@@ -7,7 +7,6 @@ import (
 	"github.com/drywaters/seenema/internal/ui/components"
 	"github.com/drywaters/seenema/internal/ui/layout"
 	"github.com/drywaters/seenema/internal/ui"
-	"github.com/google/uuid"
 )
 
 templ MovieDetailPage(entry *model.Entry, persons []*model.Person) {
@@ -120,7 +119,7 @@ templ MovieDetailPage(entry *model.Entry, persons []*model.Person) {
 
 							<div class="grid grid-cols-2 gap-4">
 								for _, person := range persons {
-									@PersonRatingRowSimple(entry, person)
+									@components.PersonRatingRowSimple(entry, person)
 								}
 							</div>
 						</div>
@@ -166,25 +165,9 @@ templ WatchedStatusSection(entry *model.Entry) {
 	</div>
 }
 
-templ PersonRatingRowSimple(entry *model.Entry, person *model.Person) {
-	<div class="rating-row flex items-center gap-3 p-3 rounded-lg bg-theater-black/50">
-		<span class="font-display text-cream-ticket">{ person.Name }</span>
-		@components.RatingInputSimple(entry.ID, person, getRatingScore(entry, person.ID))
-	</div>
-}
-
 func formatDate(t *time.Time) string {
 	if t == nil {
 		return ""
 	}
 	return t.Format("Jan 2, 2006")
-}
-
-func getRatingScore(entry *model.Entry, personID uuid.UUID) *float64 {
-	for _, r := range entry.Ratings {
-		if r.PersonID == personID {
-			return &r.Score
-		}
-	}
-	return nil
 }

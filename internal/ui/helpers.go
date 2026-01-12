@@ -3,6 +3,9 @@ package ui
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/drywaters/seenema/internal/model"
+	"github.com/google/uuid"
 )
 
 func IntToStr(n int) string {
@@ -11,4 +14,13 @@ func IntToStr(n int) string {
 
 func FormatFloat(f float64) string {
 	return fmt.Sprintf("%.1f", f)
+}
+
+func GetRatingScore(entry *model.Entry, personID uuid.UUID) *float64 {
+	for _, r := range entry.Ratings {
+		if r.PersonID == personID {
+			return &r.Score
+		}
+	}
+	return nil
 }
