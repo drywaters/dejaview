@@ -85,7 +85,7 @@ func (h *RatingHandler) SaveRatings(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Extract person ID from rating[uuid]
-		personIDStr := key[7 : len(key)-1] // Remove "rating[" prefix and "]" suffix
+		personIDStr := strings.TrimSuffix(strings.TrimPrefix(key, "rating["), "]")
 		personID, err := uuid.Parse(personIDStr)
 		if err != nil {
 			slog.Warn("invalid person ID in rating form", "key", key, "error", err)
@@ -105,6 +105,8 @@ func (h *RatingHandler) SaveRatings(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					slog.Error("failed to delete rating", "error", err)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
 				}
 			}
 		} else {
@@ -125,6 +127,8 @@ func (h *RatingHandler) SaveRatings(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				slog.Error("failed to save rating", "error", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
 			}
 		}
 	}
