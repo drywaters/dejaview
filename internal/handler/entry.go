@@ -53,10 +53,6 @@ func (h *EntryHandler) Update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if notes := r.FormValue("notes"); notes != "" {
-		input.Notes = &notes
-	}
-
 	if _, ok := r.Form["picked_by_person_id"]; ok {
 		pickedByStr := r.FormValue("picked_by_person_id")
 		if pickedByStr == "" {

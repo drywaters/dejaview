@@ -49,15 +49,14 @@ func (r *EntryRepository) Create(ctx context.Context, input model.CreateEntryInp
 
 	// Insert with position = max position in group + 1 (or 1 if no entries in group)
 	query := `
-		INSERT INTO entries (movie_id, group_number, notes, picked_by_person_id, position)
-		VALUES ($1, $2, $3, $4, COALESCE((SELECT MAX(position) FROM entries WHERE group_number = $2), 0) + 1)
-		RETURNING id, movie_id, group_number, position, watched_at, added_at, notes, picked_by_person_id`
+		INSERT INTO entries (movie_id, group_number, picked_by_person_id, position)
+		VALUES ($1, $2, $3, COALESCE((SELECT MAX(position) FROM entries WHERE group_number = $2), 0) + 1)
+		RETURNING id, movie_id, group_number, position, watched_at, added_at, picked_by_person_id`
 
 	entry := &model.Entry{}
 	err = tx.QueryRow(ctx, query,
 		input.MovieID,
 		input.GroupNumber,
-		input.Notes,
 		input.PickedByPersonID,
 	).Scan(
 		&entry.ID,
@@ -66,7 +65,6 @@ func (r *EntryRepository) Create(ctx context.Context, input model.CreateEntryInp
 		&entry.Position,
 		&entry.WatchedAt,
 		&entry.AddedAt,
-		&entry.Notes,
 		&entry.PickedByPersonID,
 	)
 	if err != nil {
@@ -83,7 +81,7 @@ func (r *EntryRepository) Create(ctx context.Context, input model.CreateEntryInp
 // GetByID retrieves an entry by its ID with movie and ratings
 func (r *EntryRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Entry, error) {
 	query := `
-		SELECT e.id, e.movie_id, e.group_number, e.position, e.watched_at, e.added_at, e.notes, e.picked_by_person_id,
+		SELECT e.id, e.movie_id, e.group_number, e.position, e.watched_at, e.added_at, e.picked_by_person_id,
 		       m.id, m.created_at, m.updated_at, m.title, m.release_year, m.poster_url, m.synopsis, m.runtime_minutes, m.tmdb_id, m.imdb_id, m.metadata_json,
 		       p.id, p.initial, p.name
 		FROM entries e
@@ -104,7 +102,6 @@ func (r *EntryRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Ent
 		&entry.Position,
 		&entry.WatchedAt,
 		&entry.AddedAt,
-		&entry.Notes,
 		&entry.PickedByPersonID,
 		&movie.ID,
 		&movie.CreatedAt,
@@ -144,7 +141,7 @@ func (r *EntryRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.Ent
 // GetByMovieAndGroup retrieves an entry by movie ID and group number
 func (r *EntryRepository) GetByMovieAndGroup(ctx context.Context, movieID uuid.UUID, groupNumber int) (*model.Entry, error) {
 	query := `
-		SELECT id, movie_id, group_number, position, watched_at, added_at, notes, picked_by_person_id
+		SELECT id, movie_id, group_number, position, watched_at, added_at, picked_by_person_id
 		FROM entries
 		WHERE movie_id = $1 AND group_number = $2`
 
@@ -156,7 +153,6 @@ func (r *EntryRepository) GetByMovieAndGroup(ctx context.Context, movieID uuid.U
 		&entry.Position,
 		&entry.WatchedAt,
 		&entry.AddedAt,
-		&entry.Notes,
 		&entry.PickedByPersonID,
 	)
 	if err != nil {
@@ -262,7 +258,7 @@ func (r *EntryRepository) getRatingsForEntries(ctx context.Context, entryIDs []u
 // ListByGroup retrieves all entries for a specific group with movie and ratings
 func (r *EntryRepository) ListByGroup(ctx context.Context, groupNumber int) ([]*model.Entry, error) {
 	query := `
-		SELECT e.id, e.movie_id, e.group_number, e.position, e.watched_at, e.added_at, e.notes, e.picked_by_person_id,
+		SELECT e.id, e.movie_id, e.group_number, e.position, e.watched_at, e.added_at, e.picked_by_person_id,
 		       m.id, m.created_at, m.updated_at, m.title, m.release_year, m.poster_url, m.synopsis, m.runtime_minutes, m.tmdb_id, m.imdb_id, m.metadata_json,
 		       p.id, p.initial, p.name
 		FROM entries e
@@ -292,7 +288,6 @@ func (r *EntryRepository) ListByGroup(ctx context.Context, groupNumber int) ([]*
 			&entry.Position,
 			&entry.WatchedAt,
 			&entry.AddedAt,
-			&entry.Notes,
 			&entry.PickedByPersonID,
 			&movie.ID,
 			&movie.CreatedAt,
@@ -378,15 +373,14 @@ func (r *EntryRepository) Update(ctx context.Context, id uuid.UUID, input model.
 	query := `
 		UPDATE entries
 		SET group_number = COALESCE($2, group_number),
-		    notes = COALESCE($3, notes),
 		    picked_by_person_id = CASE
-		    	WHEN $4::uuid IS NULL THEN picked_by_person_id
-		    	WHEN $4::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN NULL
-		    	ELSE $4::uuid
+		    	WHEN $3::uuid IS NULL THEN picked_by_person_id
+		    	WHEN $3::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN NULL
+		    	ELSE $3::uuid
 		    END
 		WHERE id = $1`
 
-	_, err := r.pool.Exec(ctx, query, id, input.GroupNumber, input.Notes, input.PickedByPersonID)
+	_, err := r.pool.Exec(ctx, query, id, input.GroupNumber, input.PickedByPersonID)
 	if err != nil {
 		return fmt.Errorf("update entry: %w", err)
 	}
