@@ -1,4 +1,4 @@
-module github.com/drywaters/seenema
+module github.com/drywaters/dejaview
 
 go 1.25.5
 

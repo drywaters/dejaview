@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/drywaters/seenema/internal/assets"
-	"github.com/drywaters/seenema/internal/config"
-	"github.com/drywaters/seenema/internal/repository"
-	"github.com/drywaters/seenema/internal/server"
-	"github.com/drywaters/seenema/internal/tmdb"
-	"github.com/drywaters/seenema/internal/ui/layout"
+	"github.com/drywaters/dejaview/internal/assets"
+	"github.com/drywaters/dejaview/internal/config"
+	"github.com/drywaters/dejaview/internal/repository"
+	"github.com/drywaters/dejaview/internal/server"
+	"github.com/drywaters/dejaview/internal/tmdb"
+	"github.com/drywaters/dejaview/internal/ui/layout"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -48,7 +48,7 @@ func run() error {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
 	slog.SetDefault(logger)
 
-	slog.Info("starting seenema", "port", cfg.Port)
+	slog.Info("starting dejaview", "port", cfg.Port)
 
 	// Connect to database
 	ctx := context.Background()
@@ -77,7 +77,6 @@ func run() error {
 	assetsVersion, err := assets.Version(
 		filepath.Join("static", "styles.css"),
 		filepath.Join("static", "dragdrop.js"),
-		filepath.Join("static", "rating.js"),
 		filepath.Join("static", "htmx.min.js"),
 	)
 	if err != nil {

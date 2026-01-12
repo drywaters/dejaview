@@ -3,11 +3,11 @@ package server
 import (
 	"net/http"
 
-	"github.com/drywaters/seenema/internal/config"
-	"github.com/drywaters/seenema/internal/handler"
-	"github.com/drywaters/seenema/internal/middleware"
-	"github.com/drywaters/seenema/internal/repository"
-	"github.com/drywaters/seenema/internal/tmdb"
+	"github.com/drywaters/dejaview/internal/config"
+	"github.com/drywaters/dejaview/internal/handler"
+	"github.com/drywaters/dejaview/internal/middleware"
+	"github.com/drywaters/dejaview/internal/repository"
+	"github.com/drywaters/dejaview/internal/tmdb"
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
 )
