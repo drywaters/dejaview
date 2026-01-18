@@ -39,7 +39,7 @@ templ LeaderboardItem(rank int, entry model.LeaderboardEntry, maxValue float64) 
 			<span class="leaderboard-name">{ entry.Person.Name }</span>
 		</div>
 		<div class="leaderboard-bar-container">
-			<div class="leaderboard-bar" style={ fmt.Sprintf("width: %.0f%%", (entry.Value/maxValue)*100) }></div>
+			<div class="leaderboard-bar" style={ fmt.Sprintf("width: %.0f%%", leaderboardPct(entry.Value, maxValue)) }></div>
 		</div>
 		<div class="leaderboard-value">{ entry.Label }</div>
 	</div>
@@ -52,4 +52,11 @@ templ LeaderboardGrid(leaderboards []model.Leaderboard) {
 			@Leaderboard(lb)
 		}
 	</div>
+}
+
+func leaderboardPct(value float64, maxValue float64) float64 {
+	if maxValue <= 0 {
+		return 0
+	}
+	return (value / maxValue) * 100
 }

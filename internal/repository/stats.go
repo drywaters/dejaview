@@ -29,15 +29,15 @@ func (r *StatsRepository) GetAdvantageHolder(ctx context.Context, currentGroup i
 	prevGroup := currentGroup - 1
 
 	query := `
-		WITH group_min AS (
-			SELECT MIN(position) as min_pos
+		WITH group_max AS (
+			SELECT MAX(position) as max_pos
 			FROM entries
 			WHERE group_number = $1
 		)
 		SELECT p.id, p.initial, p.name
 		FROM entries e
 		JOIN persons p ON e.picked_by_person_id = p.id
-		JOIN group_min gm ON e.position = gm.min_pos
+		JOIN group_max gm ON e.position = gm.max_pos
 		WHERE e.group_number = $1
 		LIMIT 1`
 
@@ -69,14 +69,14 @@ func (r *StatsRepository) GetPickPositionStats(ctx context.Context) ([]model.Pic
 		first_picks AS (
 			SELECT e.picked_by_person_id as person_id, COUNT(*) as cnt
 			FROM entries e
-			JOIN group_bounds gb ON e.group_number = gb.group_number AND e.position = gb.max_pos
+			JOIN group_bounds gb ON e.group_number = gb.group_number AND e.position = gb.min_pos
 			WHERE e.picked_by_person_id IS NOT NULL
 			GROUP BY e.picked_by_person_id
 		),
 		last_picks AS (
 			SELECT e.picked_by_person_id as person_id, COUNT(*) as cnt
 			FROM entries e
-			JOIN group_bounds gb ON e.group_number = gb.group_number AND e.position = gb.min_pos
+			JOIN group_bounds gb ON e.group_number = gb.group_number AND e.position = gb.max_pos
 			WHERE e.picked_by_person_id IS NOT NULL
 			GROUP BY e.picked_by_person_id
 		)
@@ -369,16 +369,6 @@ func (r *StatsRepository) GetMovieRatingVariance(ctx context.Context) ([]model.M
 // GetSummaryStats returns overall summary statistics
 func (r *StatsRepository) GetSummaryStats(ctx context.Context) (totalWatched, totalRuntime, totalGroups, fullyRated int, err error) {
 	query := `
-		SELECT 
-			(SELECT COUNT(*) FROM entries) as total_watched,
-			(SELECT COALESCE(SUM(m.runtime_minutes), 0) 
-			 FROM entries e JOIN movies m ON e.movie_id = m.id) as total_runtime,
-			(SELECT COALESCE(MAX(group_number), 0) FROM entries) as total_groups,
-			(SELECT COUNT(DISTINCT entry_id) FROM ratings 
-			 GROUP BY entry_id HAVING COUNT(*) = 4) as fully_rated`
-
-	// The fully_rated subquery returns multiple rows, need to count them
-	query = `
 		WITH stats AS (
 			SELECT 
 				(SELECT COUNT(*) FROM entries) as total_watched,

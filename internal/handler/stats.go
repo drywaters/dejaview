@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math"
 	"net/http"
 	"sort"
 
@@ -550,11 +551,11 @@ func (h *StatsHandler) findMax(statsMap map[uuid.UUID]model.PersonStats, metric 
 // findMin finds the person with the minimum value for the given metric
 func (h *StatsHandler) findMin(statsMap map[uuid.UUID]model.PersonStats, metric func(model.PersonStats) float64) (*model.Person, float64) {
 	var winner *model.Person
-	var minVal float64 = 999999
+	minVal := math.Inf(1)
 
 	for _, ps := range statsMap {
 		val := metric(ps)
-		if val < minVal && val > 0 {
+		if val < minVal {
 			minVal = val
 			winner = ps.Person
 		}
