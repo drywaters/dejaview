@@ -1,0 +1,39 @@
+package components
+
+import (
+	"github.com/drywaters/dejaview/internal/model"
+	"github.com/drywaters/dejaview/internal/ui"
+)
+
+// AdvantageBanner shows who has the 3-pick advantage
+templ AdvantageBanner(holder *model.Person, fromGroup int) {
+	<div class="advantage-banner">
+		<div class="advantage-badge">
+			if holder != nil {
+				{ holder.Initial }
+			} else {
+				?
+			}
+		</div>
+		<div class="flex-1">
+			if holder != nil {
+				<div class="text-xl font-display font-bold text-cream mb-1">
+					{ holder.Name } has the 3-Pick Advantage!
+				</div>
+				<div class="text-cream-muted">
+					Last pick from Group { ui.IntToStr(fromGroup) } means 3 entries in the next draw
+				</div>
+			} else {
+				<div class="text-xl font-display font-bold text-cream mb-1">
+					No Advantage Holder Yet
+				</div>
+				<div class="text-cream-muted">
+					Complete the first group to determine who gets the advantage
+				</div>
+			}
+		</div>
+		<div class="text-6xl">
+			🎰
+		</div>
+	</div>
+}

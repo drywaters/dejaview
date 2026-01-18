@@ -11,8 +11,7 @@ type Entry struct {
 	ID               uuid.UUID  `json:"id"`
 	MovieID          uuid.UUID  `json:"movie_id"`
 	GroupNumber      int        `json:"group_number"`
-	Position         int        `json:"position"`             // Position within the group (1 = first)
-	WatchedAt        *time.Time `json:"watched_at,omitempty"` // nil = not yet watched
+	Position         int        `json:"position"` // Position within the group (1 = first)
 	AddedAt          time.Time  `json:"added_at"`
 	PickedByPersonID *uuid.UUID `json:"picked_by_person_id,omitempty"`
 
@@ -33,11 +32,6 @@ type CreateEntryInput struct {
 type UpdateEntryInput struct {
 	GroupNumber      *int       `json:"group_number,omitempty"`
 	PickedByPersonID *uuid.UUID `json:"picked_by_person_id,omitempty"`
-}
-
-// IsWatched returns true if the entry has been watched
-func (e *Entry) IsWatched() bool {
-	return e.WatchedAt != nil
 }
 
 // AverageRating returns the average rating for this entry, or nil if no ratings
@@ -83,4 +77,3 @@ func (e *Entry) GetRatingByInitial(initial string) *Rating {
 	}
 	return nil
 }
-

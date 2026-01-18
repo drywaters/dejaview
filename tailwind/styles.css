@@ -237,18 +237,6 @@
 		color: var(--color-cream-muted);
 	}
 
-	/* Watched overlay badge */
-	.watched-badge {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		background: var(--color-success);
-		color: white;
-		padding: 0.25rem 0.5rem;
-		border-radius: 4px;
-		font-size: 0.75rem;
-		font-weight: 600;
-	}
 
 	/* Picker badge - shows who picked the movie */
 	.picker-badge {
@@ -535,6 +523,320 @@
 
 	.sortable-grid {
 		min-height: 100px;
+	}
+
+	/* ========== STATS PAGE ========== */
+	.stats-section {
+		background: var(--color-surface);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 12px;
+		padding: 1.5rem;
+		margin-bottom: 1.5rem;
+		box-shadow: var(--shadow-md);
+	}
+
+	.stats-section-title {
+		font-family: var(--font-display);
+		color: var(--color-gold);
+		font-size: 1.25rem;
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	/* Advantage Banner */
+	.advantage-banner {
+		background: linear-gradient(135deg, var(--color-curtain-dark), var(--color-curtain-red));
+		border-radius: 12px;
+		padding: 1.5rem;
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+		box-shadow: var(--shadow-lg);
+	}
+
+	.advantage-badge {
+		width: 5rem;
+		height: 5rem;
+		border-radius: 50%;
+		background: var(--color-gold);
+		color: var(--color-theater-black);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--font-display);
+		font-size: 2rem;
+		font-weight: 700;
+		box-shadow: 0 0 20px rgba(217, 119, 6, 0.4);
+		flex-shrink: 0;
+	}
+
+	/* Award Cards */
+	.award-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		gap: 1rem;
+	}
+
+	.award-card {
+		background: var(--color-surface-raised);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 12px;
+		padding: 1.25rem 1rem;
+		text-align: center;
+		transition: all 0.2s ease;
+	}
+
+	.award-icon {
+		font-size: 2.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.award-title {
+		font-family: var(--font-display);
+		color: var(--color-cream);
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: 0.75rem;
+		font-weight: 600;
+	}
+
+	.award-winner-badge {
+		width: 4rem;
+		height: 4rem;
+		margin: 0 auto 0.5rem;
+		border-radius: 50%;
+		background: var(--color-gold);
+		color: var(--color-theater-black);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 700;
+	}
+
+	.award-winner-badge.award-empty {
+		background: var(--color-surface);
+		border: 2px dashed var(--color-surface-raised);
+		color: var(--color-cream-muted);
+	}
+
+	.award-winner-name {
+		color: var(--color-cream);
+		font-weight: 500;
+		margin-bottom: 0.25rem;
+	}
+
+	.award-value {
+		color: var(--color-gold);
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.award-description {
+		color: var(--color-cream-muted);
+		font-size: 0.75rem;
+		font-style: italic;
+	}
+
+	/* Movie Award Cards */
+	.movie-award-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 1rem;
+	}
+
+	.movie-award-card {
+		display: flex;
+		gap: 1rem;
+		background: var(--color-surface-raised);
+		border: 1px solid var(--color-surface-raised);
+		border-radius: 12px;
+		padding: 1rem;
+		transition: all 0.2s ease;
+	}
+
+	.movie-award-poster-container {
+		flex-shrink: 0;
+	}
+
+	.movie-award-poster {
+		width: 80px;
+		height: 120px;
+		border-radius: 8px;
+		object-fit: cover;
+	}
+
+	.movie-award-poster-placeholder {
+		background: var(--color-surface);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--color-cream-muted);
+	}
+
+	.movie-award-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.movie-award-badge {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.movie-award-title {
+		font-family: var(--font-display);
+		color: var(--color-cream);
+		font-weight: 600;
+		margin-bottom: 0.25rem;
+	}
+
+	.movie-award-description {
+		color: var(--color-cream-muted);
+		font-size: 0.875rem;
+		font-style: italic;
+		margin-bottom: 0.5rem;
+	}
+
+	.movie-award-value {
+		color: var(--color-gold);
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+		margin-top: auto;
+	}
+
+	/* Leaderboards */
+	.leaderboard-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 1.5rem;
+	}
+
+	.leaderboard {
+		background: var(--color-surface-raised);
+		border-radius: 12px;
+		padding: 1rem;
+	}
+
+	.leaderboard-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid var(--color-surface);
+	}
+
+	.leaderboard-items {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.leaderboard-item {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.5rem 0;
+	}
+
+	.leaderboard-rank {
+		width: 1.5rem;
+		text-align: center;
+		font-weight: 600;
+	}
+
+	.leaderboard-person {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		min-width: 90px;
+	}
+
+	.leaderboard-initial {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 50%;
+		background: var(--color-surface);
+		border: 1px solid var(--color-gold-muted);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--font-display);
+		font-weight: 600;
+		font-size: 0.875rem;
+		color: var(--color-cream);
+	}
+
+	.leaderboard-name {
+		color: var(--color-cream);
+		font-size: 0.875rem;
+	}
+
+	.leaderboard-bar-container {
+		flex: 1;
+		height: 0.5rem;
+		background: var(--color-surface);
+		border-radius: 4px;
+		overflow: hidden;
+	}
+
+	.leaderboard-bar {
+		height: 100%;
+		background: linear-gradient(90deg, var(--color-gold-muted), var(--color-gold));
+		border-radius: 4px;
+		transition: width 0.3s ease;
+	}
+
+	.leaderboard-value {
+		font-family: var(--font-mono);
+		color: var(--color-gold);
+		font-size: 0.875rem;
+		min-width: 3rem;
+		text-align: right;
+	}
+
+	/* Quick Stats */
+	.quick-stats-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+		gap: 1rem;
+	}
+
+	.quick-stat {
+		background: var(--color-surface-raised);
+		border-radius: 12px;
+		padding: 1.25rem;
+		text-align: center;
+		transition: all 0.2s ease;
+	}
+
+	.quick-stat-icon {
+		font-size: 2rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.quick-stat-value {
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		font-weight: 700;
+		color: var(--color-gold);
+		margin-bottom: 0.25rem;
+	}
+
+	.quick-stat-label {
+		color: var(--color-cream-muted);
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 }
 
