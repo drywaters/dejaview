@@ -1,13 +1,18 @@
 package pages
 
-import "github.com/drywaters/dejaview/internal/ui/layout"
+import (
+	"github.com/drywaters/dejaview/internal/ui/layout"
+	"github.com/drywaters/dejaview/internal/ui/components"
+)
 
 templ LoginPage(errorType string, redirectURL string) {
 	@layout.Base("Login") {
 		<div class="min-h-screen flex items-center justify-center px-4">
 			<div class="login-card w-full max-w-md p-8">
 				<div class="text-center mb-8">
-					<div class="text-6xl mb-4">🎬</div>
+					<div class="text-6xl mb-4">
+						@components.Icon("clapperboard-logo", "text-6xl")
+					</div>
 					<h1 class="text-marquee text-3xl mb-2">DejaView</h1>
 					<p class="text-cream-ticket opacity-70">Family Movie Night Tracker</p>
 				</div>

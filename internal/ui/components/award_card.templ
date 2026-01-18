@@ -5,7 +5,9 @@ import "github.com/drywaters/dejaview/internal/model"
 // AwardCard renders a single award with its winner
 templ AwardCard(award model.Award) {
 	<div class="award-card">
-		<div class="award-icon">{ award.Icon }</div>
+		<div class="award-icon">
+			@Icon(award.Icon, "text-4xl")
+		</div>
 		<div class="award-title">{ award.Title }</div>
 		if award.Winner != nil {
 			<div class="award-winner-badge">{ award.Winner.Initial }</div>

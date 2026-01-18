@@ -14,8 +14,9 @@ templ StatsPage(data *model.StatsData) {
 		<main class="max-w-7xl mx-auto px-4 py-8">
 			<!-- Page Title -->
 			<div class="text-center mb-8">
-				<h1 class="text-4xl font-display font-bold text-gold mb-2">
-					🏆 The Awards Ceremony
+				<h1 class="text-4xl font-display font-bold text-gold mb-2 flex items-center justify-center gap-3">
+					@components.Icon("trophy", "text-4xl")
+					<span>The Awards Ceremony</span>
 				</h1>
 				<p class="text-cream-muted">
 					Where legends are made and egos are crushed
@@ -25,7 +26,7 @@ templ StatsPage(data *model.StatsData) {
 			<!-- Advantage Banner -->
 			<section class="stats-section">
 				<h2 class="stats-section-title">
-					<span>🎰</span>
+					@components.Icon("slot-machine", "text-2xl")
 					<span>The Advantage</span>
 				</h2>
 				@components.AdvantageBanner(data.AdvantageHolder, data.AdvantageGroup)
@@ -35,7 +36,7 @@ templ StatsPage(data *model.StatsData) {
 			if len(data.Awards) > 0 {
 				<section class="stats-section">
 					<h2 class="stats-section-title">
-						<span>🏆</span>
+						@components.Icon("trophy", "text-2xl")
 						<span>Hall of Fame</span>
 					</h2>
 					@components.AwardGrid(data.Awards)
@@ -46,7 +47,7 @@ templ StatsPage(data *model.StatsData) {
 			if len(data.MovieAwards) > 0 {
 				<section class="stats-section">
 					<h2 class="stats-section-title">
-						<span>🎬</span>
+						@components.Icon("clapperboard", "text-2xl")
 						<span>Movie Superlatives</span>
 					</h2>
 					@components.MovieAwardGrid(data.MovieAwards)
@@ -57,7 +58,7 @@ templ StatsPage(data *model.StatsData) {
 			if len(data.Leaderboards) > 0 {
 				<section class="stats-section">
 					<h2 class="stats-section-title">
-						<span>📈</span>
+						@components.Icon("chart-up", "text-2xl")
 						<span>The Leaderboards</span>
 					</h2>
 					@components.LeaderboardGrid(data.Leaderboards)
@@ -67,27 +68,35 @@ templ StatsPage(data *model.StatsData) {
 			<!-- Quick Stats -->
 			<section class="stats-section">
 				<h2 class="stats-section-title">
-					<span>📊</span>
+					@components.Icon("bar-chart", "text-2xl")
 					<span>Quick Stats</span>
 				</h2>
 				<div class="quick-stats-grid">
 					<div class="quick-stat">
-						<div class="quick-stat-icon">🎬</div>
+						<div class="quick-stat-icon">
+							@components.Icon("clapperboard", "text-2xl")
+						</div>
 						<div class="quick-stat-value">{ ui.IntToStr(data.TotalMoviesWatched) }</div>
 						<div class="quick-stat-label">Movies Watched</div>
 					</div>
 					<div class="quick-stat">
-						<div class="quick-stat-icon">⏱️</div>
+						<div class="quick-stat-icon">
+							@components.Icon("stopwatch", "text-2xl")
+						</div>
 						<div class="quick-stat-value">{ formatRuntime(data.TotalWatchTimeMinutes) }</div>
 						<div class="quick-stat-label">Total Watch Time</div>
 					</div>
 					<div class="quick-stat">
-						<div class="quick-stat-icon">📅</div>
+						<div class="quick-stat-icon">
+							@components.Icon("calendar", "text-2xl")
+						</div>
 						<div class="quick-stat-value">{ ui.IntToStr(data.TotalGroups) }</div>
 						<div class="quick-stat-label">Groups</div>
 					</div>
 					<div class="quick-stat">
-						<div class="quick-stat-icon">⭐</div>
+						<div class="quick-stat-icon">
+							@components.Icon("star", "text-2xl")
+						</div>
 						<div class="quick-stat-value">{ ui.IntToStr(data.FullyRatedMovies) }</div>
 						<div class="quick-stat-label">Fully Rated</div>
 					</div>
@@ -97,7 +106,9 @@ templ StatsPage(data *model.StatsData) {
 			<!-- Empty State -->
 			if data.TotalMoviesWatched == 0 {
 				<div class="text-center py-16">
-					<div class="text-6xl mb-4">🎭</div>
+					<div class="text-6xl mb-4">
+						@components.Icon("theater-masks", "text-6xl")
+					</div>
 					<h2 class="font-display text-gold text-2xl mb-2">No Stats Yet!</h2>
 					<p class="text-cream-muted">
 						Watch some movies and rate them to unlock the awards ceremony.

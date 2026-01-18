@@ -23,7 +23,7 @@ templ MovieAwardCard(award model.MovieAward) {
 		</div>
 		<div class="movie-award-content">
 			<div class="movie-award-badge">
-				<span class="text-xl">{ award.Icon }</span>
+				@Icon(award.Icon, "text-xl")
 				<span class="font-display text-sm text-gold uppercase tracking-wide">{ award.Title }</span>
 			</div>
 			if award.Movie != nil {

@@ -9,7 +9,7 @@ import (
 templ Leaderboard(lb model.Leaderboard) {
 	<div class="leaderboard">
 		<div class="leaderboard-header">
-			<span class="text-2xl">{ lb.Icon }</span>
+			@Icon(lb.Icon, "text-2xl")
 			<span class="font-display text-gold">{ lb.Title }</span>
 		</div>
 		<div class="leaderboard-items">
@@ -25,11 +25,11 @@ templ LeaderboardItem(rank int, entry model.LeaderboardEntry, maxValue float64) 
 	<div class="leaderboard-item">
 		<div class="leaderboard-rank">
 			if rank == 1 {
-				<span class="text-gold">🥇</span>
+				@Icon("medal-first", "text-gold")
 			} else if rank == 2 {
-				<span>🥈</span>
+				@Icon("medal-second", "")
 			} else if rank == 3 {
-				<span>🥉</span>
+				@Icon("medal-third", "")
 			} else {
 				<span class="text-cream-muted">{ fmt.Sprintf("%d", rank) }</span>
 			}

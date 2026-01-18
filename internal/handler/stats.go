@@ -219,7 +219,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "headliner",
 			Title:       "The Headliner",
 			Description: "Always opening night material",
-			Icon:        "\U0001F451", // crown
+			Icon:        "crown",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%d first picks", int(value)),
 		})
@@ -233,7 +233,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "biggest_loser",
 			Title:       "The Biggest Loser",
 			Description: "The comeback kid (3 entries next time!)",
-			Icon:        "\U0001F3B0", // slot machine
+			Icon:        "slot-machine",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%d last picks", int(value)),
 		})
@@ -250,7 +250,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "corporate_darling",
 			Title:       "Corporate Darling",
 			Description: "The family always approves",
-			Icon:        "\U0001F4BC", // briefcase
+			Icon:        "briefcase",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%.1f avg on picks", value),
 		})
@@ -267,7 +267,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "harsh_critic",
 			Title:       "The Harsh Critic",
 			Description: "Tough crowd, party of one",
-			Icon:        "\U0001F9D0", // monocle
+			Icon:        "monocle",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%.1f avg given", value),
 		})
@@ -284,7 +284,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "easy_pleaser",
 			Title:       "The Easy Pleaser",
 			Description: "Everything's a 10 with popcorn",
-			Icon:        "\U0001F60A", // smiling face
+			Icon:        "smile",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%.1f avg given", value),
 		})
@@ -298,7 +298,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "critical_outlier",
 			Title:       "The Critical Outlier",
 			Description: "Marching to their own projector",
-			Icon:        "\U0001F3AD", // theater masks
+			Icon:        "theater-masks",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%.1f points different on average", value),
 		})
@@ -312,7 +312,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "movie_masochist",
 			Title:       "The Movie Masochist",
 			Description: "Picks 'em, then roasts 'em",
-			Icon:        "\U0001F605", // sweating smile
+			Icon:        "sweat-smile",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%d times", int(value)),
 		})
@@ -329,7 +329,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "steady_hand",
 			Title:       "The Steady Hand",
 			Description: "You always know what you're getting",
-			Icon:        "\U0001F4CF", // ruler
+			Icon:        "ruler",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%.1f rating spread", value),
 		})
@@ -346,7 +346,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "wildcard",
 			Title:       "The Wildcard",
 			Description: "10 or 2, no in-between",
-			Icon:        "\U0001F3B2", // dice
+			Icon:        "dice",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%.1f rating spread", value),
 		})
@@ -363,7 +363,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "throwback_royalty",
 			Title:       "Throwback Royalty",
 			Description: "They don't make 'em like they used to",
-			Icon:        "\U0001F4FC", // VHS
+			Icon:        "vhs-tape",
 			Winner:      winner,
 			Value:       fmt.Sprintf("avg year: %.0f", value),
 		})
@@ -380,7 +380,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "fresh_picker",
 			Title:       "The Fresh Picker",
 			Description: "First in line at the multiplex",
-			Icon:        "\U0001F37F", // popcorn
+			Icon:        "popcorn",
 			Winner:      winner,
 			Value:       fmt.Sprintf("avg year: %.0f", value),
 		})
@@ -396,7 +396,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			ID:          "marathon_runner",
 			Title:       "The Marathon Runner",
 			Description: "Bladder of steel",
-			Icon:        "\u23F1\uFE0F", // stopwatch
+			Icon:        "stopwatch",
 			Winner:      winner,
 			Value:       fmt.Sprintf("%dh %dm total", hours, mins),
 		})
@@ -420,7 +420,7 @@ func (h *StatsHandler) calculateMovieAwards(movieVariance []model.MovieWithStats
 			ID:          "hype_train",
 			Title:       "The Hype Train",
 			Description: "Love it or hate it",
-			Icon:        "\U0001F682", // train
+			Icon:        "train",
 			Movie:       hypeTrain.Movie,
 			Entry:       hypeTrain.Entry,
 			Value:       fmt.Sprintf("Rating spread: %.1f", hypeTrain.RatingStdDev),
@@ -434,7 +434,7 @@ func (h *StatsHandler) calculateMovieAwards(movieVariance []model.MovieWithStats
 			ID:          "unifier",
 			Title:       "The Unifier",
 			Description: "Rare family consensus",
-			Icon:        "\U0001F91D", // handshake
+			Icon:        "handshake",
 			Movie:       unifier.Movie,
 			Entry:       unifier.Entry,
 			Value:       fmt.Sprintf("Rating spread: %.1f", unifier.RatingStdDev),
@@ -469,7 +469,7 @@ func (h *StatsHandler) buildLeaderboards(statsMap map[uuid.UUID]model.PersonStat
 	if len(generosityEntries) > 0 {
 		leaderboards = append(leaderboards, model.Leaderboard{
 			Title:    "Generosity Index",
-			Icon:     "\U0001F381", // gift
+			Icon:     "gift",
 			Entries:  generosityEntries,
 			MaxValue: maxGenerosity,
 		})
@@ -496,7 +496,7 @@ func (h *StatsHandler) buildLeaderboards(statsMap map[uuid.UUID]model.PersonStat
 	if len(successEntries) > 0 {
 		leaderboards = append(leaderboards, model.Leaderboard{
 			Title:    "Pick Success Rate",
-			Icon:     "\U0001F3AF", // target
+			Icon:     "target",
 			Entries:  successEntries,
 			MaxValue: maxSuccess,
 		})
@@ -523,7 +523,7 @@ func (h *StatsHandler) buildLeaderboards(statsMap map[uuid.UUID]model.PersonStat
 	if len(pickEntries) > 0 {
 		leaderboards = append(leaderboards, model.Leaderboard{
 			Title:    "Total Picks",
-			Icon:     "\U0001F3AC", // clapperboard
+			Icon:     "clapperboard",
 			Entries:  pickEntries,
 			MaxValue: maxPicks,
 		})

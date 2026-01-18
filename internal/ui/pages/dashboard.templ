@@ -29,7 +29,7 @@ templ DashboardContent(groups []GroupData, persons []*model.Person, currentGroup
 	<section class="mb-12">
 		<div class="card p-6">
 			<h2 class="font-display text-gold text-xl mb-4 flex items-center gap-2">
-				<span class="text-2xl">🔍</span>
+				@components.Icon("search", "text-2xl")
 				<span>Add Movie</span>
 			</h2>
 
@@ -67,7 +67,9 @@ templ DashboardContent(groups []GroupData, persons []*model.Person, currentGroup
 	<!-- Groups Section -->
 	if len(groups) == 0 {
 		<div class="text-center py-16">
-			<div class="text-6xl mb-4">🎞️</div>
+			<div class="text-6xl mb-4">
+				@components.Icon("film-reel", "text-6xl")
+			</div>
 			<h2 class="font-display text-gold text-2xl mb-2">No Movies Yet</h2>
 			<p class="text-cream-ticket opacity-70">
 				Search for a movie above to start your collection!
