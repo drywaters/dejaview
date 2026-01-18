@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/drywaters/dejaview/internal/model"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -48,8 +50,11 @@ func (r *StatsRepository) GetAdvantageHolder(ctx context.Context, currentGroup i
 		&person.Name,
 	)
 	if err != nil {
-		// No rows is fine - might be no picker assigned
-		return nil, prevGroup, nil
+		if errors.Is(err, pgx.ErrNoRows) {
+			// No rows is fine - might be no picker assigned
+			return nil, prevGroup, nil
+		}
+		return nil, prevGroup, fmt.Errorf("get advantage holder: %w", err)
 	}
 
 	return person, prevGroup, nil
