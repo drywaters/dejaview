@@ -300,7 +300,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			Description: "Marching to their own projector",
 			Icon:        "\U0001F3AD", // theater masks
 			Winner:      winner,
-			Value:       fmt.Sprintf("%.1f avg deviation", value),
+			Value:       fmt.Sprintf("%.1f points different on average", value),
 		})
 	}
 
@@ -331,7 +331,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			Description: "You always know what you're getting",
 			Icon:        "\U0001F4CF", // ruler
 			Winner:      winner,
-			Value:       fmt.Sprintf("%.2f stddev", value),
+			Value:       fmt.Sprintf("%.1f rating spread", value),
 		})
 	}
 
@@ -348,7 +348,7 @@ func (h *StatsHandler) calculateAwards(statsMap map[uuid.UUID]model.PersonStats,
 			Description: "10 or 2, no in-between",
 			Icon:        "\U0001F3B2", // dice
 			Winner:      winner,
-			Value:       fmt.Sprintf("%.2f stddev", value),
+			Value:       fmt.Sprintf("%.1f rating spread", value),
 		})
 	}
 
@@ -423,7 +423,7 @@ func (h *StatsHandler) calculateMovieAwards(movieVariance []model.MovieWithStats
 			Icon:        "\U0001F682", // train
 			Movie:       hypeTrain.Movie,
 			Entry:       hypeTrain.Entry,
-			Value:       fmt.Sprintf("Spread: %.1f", hypeTrain.RatingStdDev),
+			Value:       fmt.Sprintf("Rating spread: %.1f", hypeTrain.RatingStdDev),
 		})
 	}
 
@@ -437,7 +437,7 @@ func (h *StatsHandler) calculateMovieAwards(movieVariance []model.MovieWithStats
 			Icon:        "\U0001F91D", // handshake
 			Movie:       unifier.Movie,
 			Entry:       unifier.Entry,
-			Value:       fmt.Sprintf("Spread: %.1f", unifier.RatingStdDev),
+			Value:       fmt.Sprintf("Rating spread: %.1f", unifier.RatingStdDev),
 		})
 	}
 
