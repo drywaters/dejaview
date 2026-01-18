@@ -77,6 +77,15 @@
    ============================================================================= */
 
 @layer components {
+	/* SVG Icon System */
+	.icon {
+		display: inline-block;
+		vertical-align: middle;
+		width: 1em;
+		height: 1em;
+		flex-shrink: 0;
+	}
+
 	/* Typography */
 	.font-display {
 		font-family: var(--font-display);

@@ -36,6 +36,7 @@
   - `chore: <description>` for maintenance tasks (deps, config, etc.)
   - Examples: "feat: add rating validation", "fix: correct null pointer in stats", "chore: update dependencies"
 - PRs should include a clear description, testing notes, and screenshots for UI changes.
+- When creating PRs, assign them to yourself (`--assignee @me`).
 
 ## Security & Configuration Tips
 - Keep secrets in `local.mk` (gitignored). Required values include `DATABASE_URL`, `API_TOKEN`, and `TMDB_API_KEY`.
