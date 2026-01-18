@@ -26,7 +26,15 @@
 - Name tests with `_test.go` files and `TestXxx` functions.
 
 ## Commit & Pull Request Guidelines
-- Current git history is minimal, so no enforced commit format yet. Use short, imperative subjects (e.g., "Add rating validation").
+- **Branch naming**: Use prefixed branch names:
+  - `feature/<descriptive-name>` for new features
+  - `bugfix/<descriptive-name>` for bug fixes
+  - `chore/<descriptive-name>` for maintenance tasks
+- **Commit messages**: Use conventional commit format with short, imperative subjects:
+  - `feat: <description>` for new features
+  - `fix: <description>` for bug fixes
+  - `chore: <description>` for maintenance tasks (deps, config, etc.)
+  - Examples: "feat: add rating validation", "fix: correct null pointer in stats", "chore: update dependencies"
 - PRs should include a clear description, testing notes, and screenshots for UI changes.
 
 ## Security & Configuration Tips
