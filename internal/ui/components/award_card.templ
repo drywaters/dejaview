@@ -1,0 +1,29 @@
+package components
+
+import "github.com/drywaters/dejaview/internal/model"
+
+// AwardCard renders a single award with its winner
+templ AwardCard(award model.Award) {
+	<div class="award-card">
+		<div class="award-icon">{ award.Icon }</div>
+		<div class="award-title">{ award.Title }</div>
+		if award.Winner != nil {
+			<div class="award-winner-badge">{ award.Winner.Initial }</div>
+			<div class="award-winner-name">{ award.Winner.Name }</div>
+		} else {
+			<div class="award-winner-badge award-empty">?</div>
+			<div class="award-winner-name text-cream-muted">No winner yet</div>
+		}
+		<div class="award-value">{ award.Value }</div>
+		<div class="award-description">{ award.Description }</div>
+	</div>
+}
+
+// AwardGrid renders a grid of awards
+templ AwardGrid(awards []model.Award) {
+	<div class="award-grid">
+		for _, award := range awards {
+			@AwardCard(award)
+		}
+	</div>
+}

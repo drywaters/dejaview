@@ -69,6 +69,7 @@ func run() error {
 	entryRepo := repository.NewEntryRepository(pool)
 	personRepo := repository.NewPersonRepository(pool)
 	ratingRepo := repository.NewRatingRepository(pool)
+	statsRepo := repository.NewStatsRepository(pool)
 
 	// Initialize TMDB client
 	tmdbClient := tmdb.NewClient(cfg.TMDBAPIKey)
@@ -86,7 +87,7 @@ func run() error {
 	}
 
 	// Create server
-	srv := server.New(cfg, movieRepo, entryRepo, personRepo, ratingRepo, tmdbClient)
+	srv := server.New(cfg, movieRepo, entryRepo, personRepo, ratingRepo, statsRepo, tmdbClient)
 
 	// Start HTTP server
 	httpServer := &http.Server{

@@ -19,6 +19,7 @@ type Server struct {
 	entryRepo  *repository.EntryRepository
 	personRepo *repository.PersonRepository
 	ratingRepo *repository.RatingRepository
+	statsRepo  *repository.StatsRepository
 	tmdbClient *tmdb.Client
 }
 
@@ -29,6 +30,7 @@ func New(
 	entryRepo *repository.EntryRepository,
 	personRepo *repository.PersonRepository,
 	ratingRepo *repository.RatingRepository,
+	statsRepo *repository.StatsRepository,
 	tmdbClient *tmdb.Client,
 ) *Server {
 	return &Server{
@@ -37,6 +39,7 @@ func New(
 		entryRepo:  entryRepo,
 		personRepo: personRepo,
 		ratingRepo: ratingRepo,
+		statsRepo:  statsRepo,
 		tmdbClient: tmdbClient,
 	}
 }
@@ -91,6 +94,10 @@ func (s *Server) Router() http.Handler {
 		r.Get("/", dashboardHandler.DashboardPage)
 		r.Get("/dashboard-content", dashboardHandler.DashboardContent)
 
+		// Stats
+		statsHandler := handler.NewStatsHandler(s.statsRepo)
+		r.Get("/stats", statsHandler.StatsPage)
+
 		// Movie detail page
 		movieHandler := handler.NewMovieHandler(s.movieRepo, s.entryRepo, s.personRepo, s.tmdbClient)
 		r.Get("/movies/{id}", movieHandler.MovieDetailPage)
@@ -103,8 +110,6 @@ func (s *Server) Router() http.Handler {
 		entryHandler := handler.NewEntryHandler(s.entryRepo, s.personRepo)
 		r.Put("/api/entries/{id}", entryHandler.Update)
 		r.Delete("/api/entries/{id}", entryHandler.Delete)
-		r.Post("/api/entries/{id}/watched", entryHandler.MarkWatched)
-		r.Delete("/api/entries/{id}/watched", entryHandler.ClearWatched)
 
 		// Group partial and reordering
 		r.Get("/partials/group/{num}", entryHandler.GroupPartial)

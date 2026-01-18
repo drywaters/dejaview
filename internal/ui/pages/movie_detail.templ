@@ -1,12 +1,10 @@
 package pages
 
 import (
-	"time"
-
 	"github.com/drywaters/dejaview/internal/model"
+	"github.com/drywaters/dejaview/internal/ui"
 	"github.com/drywaters/dejaview/internal/ui/components"
 	"github.com/drywaters/dejaview/internal/ui/layout"
-	"github.com/drywaters/dejaview/internal/ui"
 )
 
 templ MovieDetailPage(entry *model.Entry, persons []*model.Person) {
@@ -56,11 +54,6 @@ templ MovieDetailPage(entry *model.Entry, persons []*model.Person) {
 								}
 							</select>
 						</div>
-						<!-- Watched Status -->
-						<div id="watched-status">
-							@WatchedStatusSection(entry)
-						</div>
-						
 						<!-- Delete Button -->
 						<button
 							hx-delete={ "/api/entries/" + entry.ID.String() }
@@ -130,44 +123,3 @@ templ MovieDetailPage(entry *model.Entry, persons []*model.Person) {
 	}
 }
 
-templ WatchedStatusSection(entry *model.Entry) {
-	<div class="space-y-2">
-		<div class="flex items-center justify-between">
-			<span class="font-display text-gold text-sm uppercase tracking-wider">Watched</span>
-			if entry.IsWatched() {
-				<span class="text-green-400 font-medium">
-					{ formatDate(entry.WatchedAt) }
-				</span>
-			} else {
-				<span class="text-cream-ticket opacity-50">Not yet</span>
-			}
-		</div>
-		
-		if entry.IsWatched() {
-			<button
-				hx-delete={ "/api/entries/" + entry.ID.String() + "/watched" }
-				hx-target="#watched-status"
-				hx-swap="innerHTML"
-				class="btn-secondary w-full"
-			>
-				Clear Watched
-			</button>
-		} else {
-			<button
-				hx-post={ "/api/entries/" + entry.ID.String() + "/watched" }
-				hx-target="#watched-status"
-				hx-swap="innerHTML"
-				class="btn-primary w-full"
-			>
-				Mark as Watched
-			</button>
-		}
-	</div>
-}
-
-func formatDate(t *time.Time) string {
-	if t == nil {
-		return ""
-	}
-	return t.Format("Jan 2, 2006")
-}

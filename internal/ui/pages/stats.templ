@@ -1,0 +1,124 @@
+package pages
+
+import (
+	"github.com/drywaters/dejaview/internal/model"
+	"github.com/drywaters/dejaview/internal/ui"
+	"github.com/drywaters/dejaview/internal/ui/components"
+	"github.com/drywaters/dejaview/internal/ui/layout"
+)
+
+templ StatsPage(data *model.StatsData) {
+	@layout.Base("Stats") {
+		@layout.Header()
+
+		<main class="max-w-7xl mx-auto px-4 py-8">
+			<!-- Page Title -->
+			<div class="text-center mb-8">
+				<h1 class="text-4xl font-display font-bold text-gold mb-2">
+					🏆 The Awards Ceremony
+				</h1>
+				<p class="text-cream-muted">
+					Where legends are made and egos are crushed
+				</p>
+			</div>
+
+			<!-- Advantage Banner -->
+			<section class="stats-section">
+				<h2 class="stats-section-title">
+					<span>🎰</span>
+					<span>The Advantage</span>
+				</h2>
+				@components.AdvantageBanner(data.AdvantageHolder, data.AdvantageGroup)
+			</section>
+
+			<!-- Hall of Fame - Person Awards -->
+			if len(data.Awards) > 0 {
+				<section class="stats-section">
+					<h2 class="stats-section-title">
+						<span>🏆</span>
+						<span>Hall of Fame</span>
+					</h2>
+					@components.AwardGrid(data.Awards)
+				</section>
+			}
+
+			<!-- Movie Superlatives -->
+			if len(data.MovieAwards) > 0 {
+				<section class="stats-section">
+					<h2 class="stats-section-title">
+						<span>🎬</span>
+						<span>Movie Superlatives</span>
+					</h2>
+					@components.MovieAwardGrid(data.MovieAwards)
+				</section>
+			}
+
+			<!-- Leaderboards -->
+			if len(data.Leaderboards) > 0 {
+				<section class="stats-section">
+					<h2 class="stats-section-title">
+						<span>📈</span>
+						<span>The Leaderboards</span>
+					</h2>
+					@components.LeaderboardGrid(data.Leaderboards)
+				</section>
+			}
+
+			<!-- Quick Stats -->
+			<section class="stats-section">
+				<h2 class="stats-section-title">
+					<span>📊</span>
+					<span>Quick Stats</span>
+				</h2>
+				<div class="quick-stats-grid">
+					<div class="quick-stat">
+						<div class="quick-stat-icon">🎬</div>
+						<div class="quick-stat-value">{ ui.IntToStr(data.TotalMoviesWatched) }</div>
+						<div class="quick-stat-label">Movies Watched</div>
+					</div>
+					<div class="quick-stat">
+						<div class="quick-stat-icon">⏱️</div>
+						<div class="quick-stat-value">{ formatRuntime(data.TotalWatchTimeMinutes) }</div>
+						<div class="quick-stat-label">Total Watch Time</div>
+					</div>
+					<div class="quick-stat">
+						<div class="quick-stat-icon">📅</div>
+						<div class="quick-stat-value">{ ui.IntToStr(data.TotalGroups) }</div>
+						<div class="quick-stat-label">Groups</div>
+					</div>
+					<div class="quick-stat">
+						<div class="quick-stat-icon">⭐</div>
+						<div class="quick-stat-value">{ ui.IntToStr(data.FullyRatedMovies) }</div>
+						<div class="quick-stat-label">Fully Rated</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Empty State -->
+			if data.TotalMoviesWatched == 0 {
+				<div class="text-center py-16">
+					<div class="text-6xl mb-4">🎭</div>
+					<h2 class="font-display text-gold text-2xl mb-2">No Stats Yet!</h2>
+					<p class="text-cream-muted">
+						Watch some movies and rate them to unlock the awards ceremony.
+					</p>
+				</div>
+			}
+		</main>
+	}
+}
+
+func formatRuntime(minutes int) string {
+	if minutes == 0 {
+		return "0h"
+	}
+	hours := minutes / 60
+	mins := minutes % 60
+	if hours > 0 && mins > 0 {
+		return ui.IntToStr(hours) + "h " + ui.IntToStr(mins) + "m"
+	}
+	if hours > 0 {
+		return ui.IntToStr(hours) + "h"
+	}
+	return ui.IntToStr(mins) + "m"
+}
