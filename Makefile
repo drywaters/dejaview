@@ -1,7 +1,6 @@
 .DEFAULT_GOAL := help
 .PHONY: help run build test docker-buildx tail-watch tail-prod migrate migrate-down migrate-status templ templ-watch
 
-
 # Include local.mk for local environment variables (API keys, DATABASE_URL, etc.)
 -include local.mk
 
