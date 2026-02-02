@@ -38,7 +38,7 @@ templ DashboardContent(groups []GroupData, persons []*model.Person, currentGroup
 					type="search"
 					name="q"
 					placeholder="Search for a movie..."
-					class="input-field flex-1"
+					class="input-field sm:flex-1"
 					hx-get="/api/tmdb/search"
 					hx-trigger="input changed delay:300ms, search"
 					hx-target="#search-results"
