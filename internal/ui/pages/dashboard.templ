@@ -33,7 +33,7 @@ templ DashboardContent(groups []GroupData, persons []*model.Person, currentGroup
 				<span>Add Movie</span>
 			</h2>
 
-			<div class="flex gap-4 mb-4">
+			<div class="flex flex-col sm:flex-row gap-4 mb-4">
 				<input
 					type="search"
 					name="q"
@@ -43,9 +43,9 @@ templ DashboardContent(groups []GroupData, persons []*model.Person, currentGroup
 					hx-trigger="input changed delay:300ms, search"
 					hx-target="#search-results"
 				/>
-				<div class="flex items-center gap-2">
+				<div class="flex flex-col sm:flex-row sm:items-center gap-2">
 					<label for="add-group-select" class="text-cream-ticket text-sm whitespace-nowrap">Add to:</label>
-					<select name="group_number" id="add-group-select" class="input-field w-40">
+					<select name="group_number" id="add-group-select" class="input-field w-full sm:w-40">
 						if len(groups) == 0 {
 							<option value="1" selected>Group 1 (New)</option>
 						} else {
