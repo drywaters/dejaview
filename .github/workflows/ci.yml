@@ -1,11 +1,45 @@
 name: CI build → push → trigger deploy
 
 on:
+  pull_request:
   push:
     branches: [ main ]
 
 jobs:
+  test:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: review
+          POSTGRES_PASSWORD: review-test-only
+          POSTGRES_DB: dejaview
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U review -d dejaview"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DEJAVIEW_TEST_DATABASE_URL: postgres://review:review-test-only@localhost:5432/dejaview?sslmode=disable
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: go.mod
+      - name: Install Tailwind CLI
+        run: |
+          curl -fsSL https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 -o /tmp/tailwindcss
+          chmod +x /tmp/tailwindcss
+          sudo mv /tmp/tailwindcss /usr/local/bin/tailwindcss
+      - run: make test build
+      - run: go vet ./...
+      - run: go test -race ./internal/handler ./internal/repository
+
   build-and-trigger:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
       id-token: write
@@ -33,12 +67,6 @@ jobs:
           go-version-file: 'go.mod'
           cache-dependency-path: 'go.sum'
 
-      - name: Install templ
-        run: go install github.com/a-h/templ/cmd/templ@latest
-
-      - name: Generate templ
-        run: templ generate
-
       - name: Install Tailwind CLI binary
         run: |
           curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-arm64
@@ -46,8 +74,8 @@ jobs:
           sudo mv tailwindcss-linux-arm64 /usr/local/bin/tailwindcss
           tailwindcss --version
 
-      - name: Build Tailwind CSS
-        run: make tail-prod
+      - name: Generate templates and CSS
+        run: make templ tail-prod
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8
