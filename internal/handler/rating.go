@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"math"
 	"net/http"
+	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -25,8 +28,7 @@ type RatingHandler struct {
 }
 
 type ratingRepository interface {
-	Upsert(ctx context.Context, input model.UpsertRatingInput) (*model.Rating, error)
-	Delete(ctx context.Context, personID, entryID uuid.UUID) error
+	SaveBatch(ctx context.Context, entryID uuid.UUID, changes []model.RatingChange) error
 }
 
 type entryRepository interface {
@@ -75,69 +77,19 @@ func (h *RatingHandler) SaveRatings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Build a map of existing ratings for quick lookup
-	existingRatings := make(map[uuid.UUID]bool)
-	for _, r := range entry.Ratings {
-		existingRatings[r.PersonID] = true
+	changes, err := parseRatingChanges(r.PostForm)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-
-	savedCount := 0
-	deletedCount := 0
-
-	// Process ratings from form: rating[personID] = score
-	for key, values := range r.Form {
-		if !strings.HasPrefix(key, "rating[") || !strings.HasSuffix(key, "]") {
-			continue
-		}
-
-		// Extract person ID from rating[uuid]
-		personIDStr := strings.TrimSuffix(strings.TrimPrefix(key, "rating["), "]")
-		personID, err := uuid.Parse(personIDStr)
-		if err != nil {
-			slog.Warn("invalid person ID in rating form", "key", key, "error", err)
-			continue
-		}
-
-		scoreStr := ""
-		if len(values) > 0 {
-			scoreStr = strings.TrimSpace(values[0])
-		}
-
-		if scoreStr == "" {
-			// Empty score - delete the rating if it exists
-			if existingRatings[personID] {
-				if err := h.ratingRepo.Delete(ctx, personID, entryID); err != nil {
-					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-						return
-					}
-					slog.Error("failed to delete rating", "error", err)
-					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					return
-				}
-				deletedCount++
-			}
-		} else {
-			// Parse and save the rating
-			score, err := strconv.ParseFloat(scoreStr, 64)
-			if err != nil || score < 0.0 || score > 10.0 {
-				slog.Warn("invalid score value", "score", scoreStr, "personID", personID)
-				continue
-			}
-
-			_, err = h.ratingRepo.Upsert(ctx, model.UpsertRatingInput{
-				PersonID: personID,
-				EntryID:  entryID,
-				Score:    score,
-			})
-			if err != nil {
-				if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-					return
-				}
-				slog.Error("failed to save rating", "error", err)
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	if len(changes) > 0 {
+		if err := h.ratingRepo.SaveBatch(ctx, entryID, changes); err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 				return
 			}
-			savedCount++
+			slog.Error("failed to save ratings", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
 		}
 	}
 
@@ -162,7 +114,41 @@ func (h *RatingHandler) SaveRatings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isAuthenticated := isAuthenticatedRequest(r, h.sessionManager)
-	slog.Info("ratings saved", "entry_id", entryID, "saved", savedCount, "deleted", deletedCount)
+	slog.Info("ratings saved", "entry_id", entryID, "changes", len(changes))
 	w.Header().Set("HX-Trigger", `{"showToast": {"message": "Saved!", "type": "success"}}`)
 	partials.RatingsUpdate(entry, persons, isAuthenticated).Render(ctx, w)
+}
+
+// parseRatingChanges validates the entire submission before any rating is written.
+func parseRatingChanges(form url.Values) ([]model.RatingChange, error) {
+	var changes []model.RatingChange
+	seen := make(map[uuid.UUID]bool)
+	for key, values := range form {
+		if !strings.HasPrefix(key, "rating[") {
+			continue
+		}
+		if !strings.HasSuffix(key, "]") || len(values) != 1 {
+			return nil, errors.New("Invalid or duplicate rating field")
+		}
+		personID, err := uuid.Parse(strings.TrimSuffix(strings.TrimPrefix(key, "rating["), "]"))
+		if err != nil || personID == uuid.Nil {
+			return nil, errors.New("Invalid person ID")
+		}
+		if seen[personID] {
+			return nil, errors.New("Duplicate rating for person")
+		}
+		seen[personID] = true
+		change := model.RatingChange{PersonID: personID}
+		if value := strings.TrimSpace(values[0]); value != "" {
+			score, err := strconv.ParseFloat(value, 64)
+			if err != nil || math.IsNaN(score) || math.IsInf(score, 0) || score < 0 || score > 10 {
+				return nil, errors.New("Ratings must be numbers from 0 to 10")
+			}
+			change.Score = &score
+		}
+		changes = append(changes, change)
+	}
+	// Stable locking order also avoids deadlocks between overlapping submissions.
+	sort.Slice(changes, func(i, j int) bool { return changes[i].PersonID.String() < changes[j].PersonID.String() })
+	return changes, nil
 }

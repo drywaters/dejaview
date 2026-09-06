@@ -53,3 +53,35 @@ func TestLoginPageRejectsLegacyRawTokenCookie(t *testing.T) {
 		t.Fatalf("expected status %d, got %d", http.StatusOK, recorder.Code)
 	}
 }
+
+func TestLoginRedirectValidation(t *testing.T) {
+	cases := []struct {
+		destination string
+		valid       bool
+	}{
+		{"/", true}, {"/entries/123?filter=watched#ratings", true}, {"/search?q=https%3A%2F%2Fexample.com", true},
+		{"", false}, {"https://example.com", false}, {"//example.com", false}, {`/\example.com`, false},
+		{"/%5cexample.com", false}, {"/%2fexample.com", false}, {"/%00bad", false}, {"/bad\npath", false},
+		{"/%zz", false}, {"relative", false},
+	}
+	handler := NewAuthHandler("secret", session.NewManager("secret", time.Hour, false))
+	for _, tc := range cases {
+		t.Run(tc.destination, func(t *testing.T) {
+			if got := isValidRedirect(tc.destination); got != tc.valid {
+				t.Fatalf("valid=%v want=%v", got, tc.valid)
+			}
+			form := url.Values{"api_key": {"secret"}, "redirect": {tc.destination}}
+			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(form.Encode()))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			result := httptest.NewRecorder()
+			handler.Login(result, req)
+			want := "/"
+			if tc.valid {
+				want = tc.destination
+			}
+			if result.Code != http.StatusSeeOther || result.Header().Get("Location") != want {
+				t.Fatalf("status=%d redirect=%q", result.Code, result.Header().Get("Location"))
+			}
+		})
+	}
+}

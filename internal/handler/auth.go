@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strings"
+	"unicode"
 
 	"github.com/drywaters/dejaview/internal/session"
 	"github.com/drywaters/dejaview/internal/ui/pages"
@@ -78,12 +80,18 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 // isValidRedirect checks that the redirect URL is safe (relative path only)
 func isValidRedirect(rawURL string) bool {
-	parsed, err := url.Parse(rawURL)
-	if err != nil {
+	if strings.Contains(rawURL, "\\") || strings.ContainsFunc(rawURL, unicode.IsControl) {
 		return false
 	}
-	// Must be a relative path with no scheme or host (prevents open redirect)
-	return parsed.Scheme == "" && parsed.Host == "" && len(parsed.Path) > 0 && parsed.Path[0] == '/'
+	parsed, err := url.Parse(rawURL)
+	if err != nil || parsed.Scheme != "" || parsed.Host != "" || parsed.User != nil {
+		return false
+	}
+	// url.Parse decodes the path. Validate that representation too, so encoded
+	// slashes, backslashes and controls cannot change the destination's authority.
+	path := parsed.Path
+	return strings.HasPrefix(path, "/") && !strings.HasPrefix(path, "//") &&
+		!strings.Contains(path, "\\") && !strings.ContainsFunc(path, unicode.IsControl)
 }
 
 // Logout clears the session cookie

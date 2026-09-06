@@ -48,3 +48,8 @@ func ScoreColorClass(score float64) string {
 	return "rating-high"
 }
 
+// RatingChange updates one person's rating; a nil Score deletes it.
+type RatingChange struct {
+	PersonID uuid.UUID
+	Score    *float64
+}
