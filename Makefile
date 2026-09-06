@@ -1,4 +1,6 @@
 .DEFAULT_GOAL := help
+TEMPL_VERSION := $(shell go list -m -f '{{.Version}}' github.com/a-h/templ)
+TEMPL := go run github.com/a-h/templ/cmd/templ@$(TEMPL_VERSION)
 .PHONY: help configure-image ensure-image-tag run build test docker-buildx tail-watch tail-prod migrate migrate-down migrate-status templ templ-watch
 
 # Include local.mk for local environment variables (API keys, DATABASE_URL, etc.)
@@ -17,16 +19,18 @@ ensure-image-tag: configure-image
 
 # Templ code generation
 templ: ## Generate Go code from templ files
-	templ generate
+	@find internal -type f -name '*_templ.go' -exec sh -c 'for generated do test -f "$${generated%_templ.go}.templ" || rm -- "$$generated"; done' sh {} +
+	$(TEMPL) generate
 
 templ-watch: ## Watch templ files and regenerate on change
-	templ generate --watch
+	$(TEMPL) generate --watch
 
 # Local development (assumes tailwindcss binary is installed)
 run: templ tail-prod ## Generate templ, build Tailwind, and run the app
 	go run ./cmd/dejaview
 
 build: configure-image templ tail-prod ## Generate templ, build Tailwind, and build production binary
+	mkdir -p bin
 	go build -ldflags "-X main.version=$(VERSION) -X main.revision=$(REVISION)" -o bin/dejaview ./cmd/dejaview
 
 # Tailwind (using standalone CLI binary)
@@ -47,7 +51,7 @@ migrate-status: ## Show migration status
 	goose -dir migrations postgres "$$DATABASE_URL" status
 
 # Testing
-test: ## Run Go tests
+test: templ tail-prod ## Generate assets and run Go tests
 	go test -v ./...
 
 # Docker (production)

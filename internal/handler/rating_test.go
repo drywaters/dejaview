@@ -18,17 +18,14 @@ type stubRatingRepo struct {
 	upsertCalls int
 }
 
-func (s *stubRatingRepo) Upsert(ctx context.Context, input model.UpsertRatingInput) (*model.Rating, error) {
-	s.upsertCalls++
-	return &model.Rating{
-		PersonID: input.PersonID,
-		EntryID:  input.EntryID,
-		Score:    input.Score,
-	}, nil
-}
-
-func (s *stubRatingRepo) Delete(ctx context.Context, personID, entryID uuid.UUID) error {
-	s.deleteCalls++
+func (s *stubRatingRepo) SaveBatch(ctx context.Context, entryID uuid.UUID, changes []model.RatingChange) error {
+	for _, change := range changes {
+		if change.Score == nil {
+			s.deleteCalls++
+		} else {
+			s.upsertCalls++
+		}
+	}
 	return nil
 }
 
@@ -171,11 +168,10 @@ func TestSaveRatings_InvalidForm(t *testing.T) {
 	}
 }
 
-func TestSaveRatings_UpsertDeleteAndInvalidScores(t *testing.T) {
+func TestSaveRatings_UpsertAndDelete(t *testing.T) {
 	entryID := uuid.New()
 	existingPersonID := uuid.New()
 	validPersonID := uuid.New()
-	invalidPersonID := "not-a-uuid"
 
 	ratingRepo := &stubRatingRepo{}
 	entryRepo := &stubEntryRepo{
@@ -203,10 +199,6 @@ func TestSaveRatings_UpsertDeleteAndInvalidScores(t *testing.T) {
 	form := url.Values{}
 	form.Set("rating["+existingPersonID.String()+"]", "")
 	form.Set("rating["+validPersonID.String()+"]", "8.5")
-	form.Set("rating["+uuid.NewString()+"]", "11")
-	form.Set("rating["+uuid.NewString()+"]", "-1")
-	form.Set("rating["+uuid.NewString()+"]", "abc")
-	form.Set("rating["+invalidPersonID+"]", "7")
 
 	req := httptest.NewRequest(http.MethodPost, "/entries/"+entryID.String()+"/ratings", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -233,5 +225,41 @@ func TestSaveRatings_UpsertDeleteAndInvalidScores(t *testing.T) {
 	}
 	if ratingRepo.upsertCalls != 1 {
 		t.Fatalf("expected one upsert call, got %d", ratingRepo.upsertCalls)
+	}
+}
+
+func TestSaveRatings_InvalidBatchDoesNotWrite(t *testing.T) {
+	personID := uuid.NewString()
+	valid := "rating[" + uuid.NewString() + "]=8"
+	cases := []string{
+		"rating[not-a-uuid]=7", "rating[" + personID + "]=NaN", "rating[" + personID + "]=Inf",
+		"rating[" + personID + "]=-1", "rating[" + personID + "]=11", "rating[" + personID + "]=abc",
+		"rating[" + personID + "]=7&rating[" + personID + "]=8", "rating[" + personID + "=7",
+		"rating[" + personID + "]=7&rating[" + strings.ToUpper(personID) + "]=8",
+	}
+	for _, body := range cases {
+		t.Run(body, func(t *testing.T) {
+			entryID := uuid.New()
+			ratings := &stubRatingRepo{}
+			handler := &RatingHandler{ratingRepo: ratings, entryRepo: &stubEntryRepo{entries: []*model.Entry{{ID: entryID}}}}
+			req := httptest.NewRequest(http.MethodPost, "/entries/"+entryID.String()+"/ratings", strings.NewReader(valid+"&"+body))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			route := chi.NewRouteContext()
+			route.URLParams.Add("id", entryID.String())
+			req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, route))
+			result := httptest.NewRecorder()
+			handler.SaveRatings(result, req)
+			if result.Code != http.StatusBadRequest || ratings.upsertCalls != 0 || ratings.deleteCalls != 0 {
+				t.Fatalf("status=%d upserts=%d deletes=%d", result.Code, ratings.upsertCalls, ratings.deleteCalls)
+			}
+		})
+	}
+}
+
+func TestParseRatingChangesBoundaries(t *testing.T) {
+	first, second := uuid.NewString(), uuid.NewString()
+	changes, err := parseRatingChanges(url.Values{"rating[" + first + "]": {"0"}, "rating[" + second + "]": {"10"}})
+	if err != nil || len(changes) != 2 {
+		t.Fatalf("changes=%v err=%v", changes, err)
 	}
 }
